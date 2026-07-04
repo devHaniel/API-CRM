@@ -144,20 +144,11 @@ namespace Application.Services
                 if (recordatorio.FechaProgramada > DateTime.UtcNow)
                     return;
 
-                if (string.Equals(recordatorio.Estado, "Enviado", StringComparison.OrdinalIgnoreCase))
-                    return;
-
                 var mensaje = ConstruirMensaje(recordatorio);
                 var enviado = await _mensajeService.EnviarWhatsAppAsync(recordatorio.Evento.Cliente.Telefono, mensaje, ct);
 
                 recordatorio.Estado = enviado ? "Enviado" : "Fallido";
                 recordatorio.DetalleError = enviado ? null : "El proveedor de mensajería rechazó el envío.";
-                recordatorio.FechaEnvio = DateTime.UtcNow;
-            }
-            catch (InvalidOperationException ex) when (ex.Message.Contains("Twilio", StringComparison.OrdinalIgnoreCase))
-            {
-                recordatorio.Estado = "Fallido";
-                recordatorio.DetalleError = $"Error de configuración de Twilio: {ex.Message}";
                 recordatorio.FechaEnvio = DateTime.UtcNow;
             }
             catch (Exception ex)

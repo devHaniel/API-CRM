@@ -1,0 +1,84 @@
+-- ============================================
+-- TENANT (negocio cliente de la plataforma)
+-- ============================================
+CREATE TABLE tenants (
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    nombre          VARCHAR(150) NOT NULL,
+    rubro           VARCHAR(80)  NOT NULL,          -- ej: 'Clinica Dental', 'Taller Mecanico'
+    plan_activo     VARCHAR(20)  NOT NULL DEFAULT 'Free', -- Free | Basico | Negocio
+    fecha_creacion  TIMESTAMPTZ  NOT NULL DEFAULT now(),
+    activo          BOOLEAN      NOT NULL DEFAULT true
+);
+
+-- ============================================
+-- USUARIO (empleados/admin de cada tenant)
+-- ============================================
+CREATE TABLE usuarios (
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id       UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+    email           VARCHAR(150) NOT NULL,
+    password_hash   TEXT NOT NULL,
+    rol             VARCHAR(20) NOT NULL DEFAULT 'Empleado', -- Admin | Empleado
+    fecha_creacion  TIMESTAMPTZ NOT NULL DEFAULT now(),
+    activo          BOOLEAN NOT NULL DEFAULT true,
+    UNIQUE (tenant_id, email)   -- email único DENTRO del tenant, no global
+);
+
+-- ============================================
+-- CLIENTE (cliente final del negocio)
+-- ============================================
+CREATE TABLE clientes (
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id       UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+    nombre          VARCHAR(150) NOT NULL,
+    telefono        VARCHAR(30),
+    email           VARCHAR(150),
+    notas           TEXT,
+    fecha_creacion  TIMESTAMPTZ NOT NULL DEFAULT now(),
+    activo          BOOLEAN NOT NULL DEFAULT true
+);
+
+-- ============================================
+-- EVENTO (cita o cuota/pago pendiente)
+-- ============================================
+CREATE TABLE eventos (
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id       UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+    cliente_id      UUID NOT NULL REFERENCES clientes(id) ON DELETE CASCADE,
+    tipo            VARCHAR(10) NOT NULL,   -- 'Cita' | 'Pago'
+    fecha           TIMESTAMPTZ NOT NULL,
+    monto           NUMERIC(12,2),          -- solo aplica si tipo = 'Pago'
+    estado          VARCHAR(20) NOT NULL DEFAULT 'Pendiente',
+                    -- Pendiente | Confirmado | Completado | Cancelado | Pagado | Vencido
+    fecha_creacion  TIMESTAMPTZ NOT NULL DEFAULT now(),
+    CONSTRAINT chk_monto_si_pago CHECK (
+        (tipo = 'Pago' AND monto IS NOT NULL) OR (tipo = 'Cita')
+    )
+);
+
+-- ============================================
+-- PLANTILLA DE MENSAJE
+-- ============================================
+CREATE TABLE plantillas_mensaje (
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id       UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+    tipo            VARCHAR(30) NOT NULL,   -- RecordatorioCita | RecordatorioPago
+    contenido       TEXT NOT NULL,          -- soporta variables {{nombre}}, {{fecha}}, {{monto}}
+    activo          BOOLEAN NOT NULL DEFAULT true,
+    fecha_creacion  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- ============================================
+-- RECORDATORIO (instancia de envío programado)
+-- ============================================
+CREATE TABLE recordatorios (
+    id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    evento_id           UUID NOT NULL REFERENCES eventos(id) ON DELETE CASCADE,
+    plantilla_id        UUID REFERENCES plantillas_mensaje(id),
+    canal_envio         VARCHAR(10) NOT NULL,  -- WhatsApp | Email
+    fecha_programada    TIMESTAMPTZ NOT NULL,
+    fecha_envio         TIMESTAMPTZ,
+    estado              VARCHAR(15) NOT NULL DEFAULT 'Pendiente', -- Pendiente | Enviado | Fallido
+    detalle_error       TEXT,               -- si Estado = Fallido, guarda el motivo
+    fecha_creacion      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
