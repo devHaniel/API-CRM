@@ -193,7 +193,8 @@ namespace Application.Services
                 return plantilla
                     .Replace("{clienteNombre}", recordatorio.Evento?.Cliente?.Nombre ?? "cliente", StringComparison.OrdinalIgnoreCase)
                     .Replace("{fecha}", recordatorio.Evento?.Fecha.ToString("dd/MM/yyyy") ?? "la fecha", StringComparison.OrdinalIgnoreCase)
-                    .Replace("{tipo}", recordatorio.Evento?.Tipo ?? "evento", StringComparison.OrdinalIgnoreCase);
+                    .Replace("{tipo}", recordatorio.Evento?.Tipo ?? "evento", StringComparison.OrdinalIgnoreCase)
+                    .Replace("{descripcion}", recordatorio.Evento?.Descripcion ?? "evento", StringComparison.OrdinalIgnoreCase);
             }
 
             var nombre = recordatorio.Evento?.Cliente?.Nombre ?? "cliente";
