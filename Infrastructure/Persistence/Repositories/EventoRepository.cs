@@ -14,10 +14,16 @@ namespace Infrastructure.Persistence.Repositories
         }
 
         public async Task<Evento?> GetByIdAsync(Guid id, Guid tenantId, CancellationToken ct = default)
-            => await _context.Eventos.FirstOrDefaultAsync(e => e.Id == id && e.TenantId == tenantId, ct);
+            => await _context.Eventos
+                .Include(e => e.Cliente)
+                .FirstOrDefaultAsync(e => e.Id == id && e.TenantId == tenantId, ct);
 
         public async Task<IEnumerable<Evento>> GetAllByTenantAsync(Guid tenantId, CancellationToken ct = default)
-            => await _context.Eventos.Where(e => e.TenantId == tenantId).ToListAsync(ct);
+            => await _context.Eventos
+                .Where(e => e.TenantId == tenantId)
+                .Include(e => e.Cliente)
+                .OrderBy(e => e.Fecha)
+                .ToListAsync(ct);
 
         public async Task AddAsync(Evento evento, CancellationToken ct = default)
             => await _context.Eventos.AddAsync(evento, ct);

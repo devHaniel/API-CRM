@@ -13,6 +13,9 @@ namespace Application
         public static IServiceCollection AddApplication(this IServiceCollection services)
         {
             services.AddScoped<IClienteService, ClienteService>();
+            services.AddScoped<IEventoService, EventoService>();
+            services.AddScoped<IRecordatorioService, RecordatorioService>();
+            services.AddScoped<IPlantillasMensajeService, PlantillasMensajeService>();
             services.AddScoped<IAuthService, AuthService>();
 
             return services;

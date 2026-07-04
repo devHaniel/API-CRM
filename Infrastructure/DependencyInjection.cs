@@ -26,6 +26,7 @@ namespace Infrastructure
         services.AddScoped<IClienteRepository, ClienteRepository>();
         services.AddScoped<IEventoRepository, EventoRepository>();
         services.AddScoped<IRecordatorioRepository, RecordatorioRepository>();
+        services.AddScoped<IPlantillasMensajeRepository, PlantillasMensajeRepository>();
         services.AddScoped<IUsuarioRepository, UsuarioRepository>();
         services.AddScoped<ITenantRepository, TenantRepository>();
 
