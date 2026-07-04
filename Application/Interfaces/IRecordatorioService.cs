@@ -10,5 +10,6 @@ namespace Application.Interfaces
         Task<IEnumerable<RecordatorioDto>> ObtenerPendientesDeEnvioAsync(Guid tenantId, CancellationToken ct = default);
         Task ActualizarAsync(Guid tenantId, Guid id, ActualizarRecordatorioDto dto, CancellationToken ct = default);
         Task EliminarAsync(Guid tenantId, Guid id, CancellationToken ct = default);
+        Task ProcesarPendientesAsync(CancellationToken ct = default);
     }
 }

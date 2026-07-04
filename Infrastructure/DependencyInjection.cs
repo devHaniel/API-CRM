@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Application.Interfaces;
 using Domain.Interfaces;
+using Infrastructure.Mensajeria;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Repositories;
 using Infrastructure.Persistence.Services;
@@ -29,6 +30,7 @@ namespace Infrastructure
         services.AddScoped<IPlantillasMensajeRepository, PlantillasMensajeRepository>();
         services.AddScoped<IUsuarioRepository, UsuarioRepository>();
         services.AddScoped<ITenantRepository, TenantRepository>();
+        services.AddScoped<IMensajeService, TwilioMensajeService>();
 
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();

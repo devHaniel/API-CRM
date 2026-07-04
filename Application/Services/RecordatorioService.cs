@@ -9,11 +9,12 @@ namespace Application.Services
     {
         private readonly IRecordatorioRepository _recordatorioRepository;
         private readonly IEventoRepository _eventoRepository;
-
-        public RecordatorioService(IRecordatorioRepository recordatorioRepository, IEventoRepository eventoRepository)
+        private readonly IMensajeService _mensajeService;
+        public RecordatorioService(IRecordatorioRepository recordatorioRepository, IEventoRepository eventoRepository, IMensajeService mensajeService)
         {
             _recordatorioRepository = recordatorioRepository;
             _eventoRepository = eventoRepository;
+            _mensajeService = mensajeService;
         }
 
         public async Task<Guid> CrearAsync(Guid tenantId, CrearRecordatorioDto dto, CancellationToken ct = default)
@@ -100,6 +101,61 @@ namespace Application.Services
             var perteneceAlTenant = await _recordatorioRepository.PlantillaPerteneceAlTenantAsync(tenantId, plantillaId.Value, ct);
             if (!perteneceAlTenant)
                 throw new InvalidOperationException("La plantilla no existe o no pertenece al tenant actual.");
+        }
+
+        public async Task ProcesarPendientesAsync(CancellationToken ct = default)
+        {
+            var pendientes = await _recordatorioRepository.GetPendientesDeEnvioAsync(ct);
+
+            foreach (var recordatorio in pendientes)
+            {
+                try
+                {
+                    if (recordatorio.Evento?.Cliente is null)
+                        throw new InvalidOperationException("El recordatorio no tiene un cliente asociado.");
+
+                    if (string.IsNullOrWhiteSpace(recordatorio.Evento.Cliente.Telefono))
+                        throw new InvalidOperationException("El cliente no tiene un teléfono registrado.");
+
+                    if (!string.Equals(recordatorio.CanalEnvio, "whatsapp", StringComparison.OrdinalIgnoreCase))
+                        throw new NotSupportedException($"El canal de envío '{recordatorio.CanalEnvio}' no está soportado.");
+
+                    var mensaje = ConstruirMensaje(recordatorio);
+                    var enviado = await _mensajeService.EnviarWhatsAppAsync(recordatorio.Evento.Cliente.Telefono, mensaje, ct);
+
+                    recordatorio.Estado = enviado ? "Enviado" : "Fallido";
+                    recordatorio.DetalleError = enviado ? null : "El proveedor de mensajería rechazó el envío.";
+                    recordatorio.FechaEnvio = DateTime.UtcNow;
+                }
+                catch (Exception ex)
+                {
+                    recordatorio.Estado = "Fallido";
+                    recordatorio.DetalleError = ex.Message;
+                    recordatorio.FechaEnvio = DateTime.UtcNow;
+                }
+                finally
+                {
+                    _recordatorioRepository.Update(recordatorio);
+                }
+            }
+
+            await _recordatorioRepository.SaveChangesAsync(ct);
+        }
+
+        private static string ConstruirMensaje(Recordatorio recordatorio)
+        {
+            var plantilla = recordatorio.Plantilla?.Contenido;
+            if (!string.IsNullOrWhiteSpace(plantilla))
+            {
+                return plantilla
+                    .Replace("{clienteNombre}", recordatorio.Evento?.Cliente?.Nombre ?? "cliente", StringComparison.OrdinalIgnoreCase)
+                    .Replace("{fecha}", recordatorio.Evento?.Fecha.ToString("dd/MM/yyyy") ?? "la fecha", StringComparison.OrdinalIgnoreCase)
+                    .Replace("{tipo}", recordatorio.Evento?.Tipo ?? "evento", StringComparison.OrdinalIgnoreCase);
+            }
+
+            var nombre = recordatorio.Evento?.Cliente?.Nombre ?? "cliente";
+            var fecha = recordatorio.Evento?.Fecha.ToString("dd/MM/yyyy") ?? "la fecha";
+            return $"Hola {nombre}, te recordamos tu evento para el {fecha}.";
         }
 
         private static RecordatorioDto MapToDto(Recordatorio r)
