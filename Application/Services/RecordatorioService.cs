@@ -22,13 +22,15 @@ namespace Application.Services
             await ValidarEventoDelTenantAsync(tenantId, dto.EventoId, ct);
             await ValidarPlantillaDelTenantAsync(tenantId, dto.PlantillaId, ct);
 
+            var fechaProgramadaUtc = NormalizarFechaProgramada(dto.FechaProgramada);
+
             var recordatorio = new Recordatorio
             {
                 Id = Guid.NewGuid(),
                 EventoId = dto.EventoId,
                 PlantillaId = dto.PlantillaId,
                 CanalEnvio = dto.CanalEnvio,
-                FechaProgramada = dto.FechaProgramada,
+                FechaProgramada = fechaProgramadaUtc,
                 Estado = string.IsNullOrWhiteSpace(dto.Estado) ? "Pendiente" : dto.Estado,
                 FechaCreacion = DateTime.UtcNow
             };
@@ -68,7 +70,7 @@ namespace Application.Services
             recordatorio.EventoId = dto.EventoId;
             recordatorio.PlantillaId = dto.PlantillaId;
             recordatorio.CanalEnvio = dto.CanalEnvio;
-            recordatorio.FechaProgramada = dto.FechaProgramada;
+            recordatorio.FechaProgramada = NormalizarFechaProgramada(dto.FechaProgramada);
             recordatorio.FechaEnvio = dto.FechaEnvio;
             recordatorio.Estado = dto.Estado;
             recordatorio.DetalleError = dto.DetalleError;
@@ -103,43 +105,83 @@ namespace Application.Services
                 throw new InvalidOperationException("La plantilla no existe o no pertenece al tenant actual.");
         }
 
+        public async Task ProcesarRecordatorioAsync(Guid recordatorioId)
+        {
+            var recordatorio = (await _recordatorioRepository.GetPendientesDeEnvioAsync(CancellationToken.None))
+                .FirstOrDefault(r => r.Id == recordatorioId);
+
+            if (recordatorio is null)
+                return;
+
+            await ProcesarRecordatorioInternoAsync(recordatorio, CancellationToken.None);
+        }
+
         public async Task ProcesarPendientesAsync(CancellationToken ct = default)
         {
             var pendientes = await _recordatorioRepository.GetPendientesDeEnvioAsync(ct);
 
             foreach (var recordatorio in pendientes)
             {
-                try
-                {
-                    if (recordatorio.Evento?.Cliente is null)
-                        throw new InvalidOperationException("El recordatorio no tiene un cliente asociado.");
-
-                    if (string.IsNullOrWhiteSpace(recordatorio.Evento.Cliente.Telefono))
-                        throw new InvalidOperationException("El cliente no tiene un teléfono registrado.");
-
-                    if (!string.Equals(recordatorio.CanalEnvio, "whatsapp", StringComparison.OrdinalIgnoreCase))
-                        throw new NotSupportedException($"El canal de envío '{recordatorio.CanalEnvio}' no está soportado.");
-
-                    var mensaje = ConstruirMensaje(recordatorio);
-                    var enviado = await _mensajeService.EnviarWhatsAppAsync(recordatorio.Evento.Cliente.Telefono, mensaje, ct);
-
-                    recordatorio.Estado = enviado ? "Enviado" : "Fallido";
-                    recordatorio.DetalleError = enviado ? null : "El proveedor de mensajería rechazó el envío.";
-                    recordatorio.FechaEnvio = DateTime.UtcNow;
-                }
-                catch (Exception ex)
-                {
-                    recordatorio.Estado = "Fallido";
-                    recordatorio.DetalleError = ex.Message;
-                    recordatorio.FechaEnvio = DateTime.UtcNow;
-                }
-                finally
-                {
-                    _recordatorioRepository.Update(recordatorio);
-                }
+                await ProcesarRecordatorioInternoAsync(recordatorio, ct);
             }
 
             await _recordatorioRepository.SaveChangesAsync(ct);
+        }
+
+        private async Task ProcesarRecordatorioInternoAsync(Recordatorio recordatorio, CancellationToken ct)
+        {
+            try
+            {
+                if (recordatorio.Evento?.Cliente is null)
+                    throw new InvalidOperationException("El recordatorio no tiene un cliente asociado.");
+
+                if (string.IsNullOrWhiteSpace(recordatorio.Evento.Cliente.Telefono))
+                    throw new InvalidOperationException("El cliente no tiene un teléfono registrado.");
+
+                if (!string.Equals(recordatorio.CanalEnvio, "whatsapp", StringComparison.OrdinalIgnoreCase))
+                    throw new NotSupportedException($"El canal de envío '{recordatorio.CanalEnvio}' no está soportado.");
+
+                if (recordatorio.FechaProgramada > DateTime.UtcNow)
+                    return;
+
+                if (string.Equals(recordatorio.Estado, "Enviado", StringComparison.OrdinalIgnoreCase))
+                    return;
+
+                var mensaje = ConstruirMensaje(recordatorio);
+                var enviado = await _mensajeService.EnviarWhatsAppAsync(recordatorio.Evento.Cliente.Telefono, mensaje, ct);
+
+                recordatorio.Estado = enviado ? "Enviado" : "Fallido";
+                recordatorio.DetalleError = enviado ? null : "El proveedor de mensajería rechazó el envío.";
+                recordatorio.FechaEnvio = DateTime.UtcNow;
+            }
+            catch (InvalidOperationException ex) when (ex.Message.Contains("Twilio", StringComparison.OrdinalIgnoreCase))
+            {
+                recordatorio.Estado = "Fallido";
+                recordatorio.DetalleError = $"Error de configuración de Twilio: {ex.Message}";
+                recordatorio.FechaEnvio = DateTime.UtcNow;
+            }
+            catch (Exception ex)
+            {
+                recordatorio.Estado = "Fallido";
+                recordatorio.DetalleError = ex.Message;
+                recordatorio.FechaEnvio = DateTime.UtcNow;
+            }
+            finally
+            {
+                _recordatorioRepository.Update(recordatorio);
+            }
+        }
+
+        private static DateTime NormalizarFechaProgramada(DateTime fecha)
+        {
+            if (fecha.Kind == DateTimeKind.Utc)
+                return fecha;
+
+            if (fecha.Kind == DateTimeKind.Local)
+                return fecha.ToUniversalTime();
+
+            var local = DateTime.SpecifyKind(fecha, DateTimeKind.Local);
+            return local.ToUniversalTime();
         }
 
         private static string ConstruirMensaje(Recordatorio recordatorio)

@@ -1,5 +1,8 @@
 using System.Text;
 using Application;
+using Application.Interfaces;
+using Hangfire;
+using Hangfire.PostgreSql;
 using Infrastructure;
 using Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -14,6 +17,12 @@ var builder = WebApplication.CreateBuilder(args);
 // ============================================
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
+
+builder.Services.AddHangfire(config => config
+    .UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings()
+    .UsePostgreSqlStorage(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddHangfireServer();
 
 // ============================================
 // Controllers (esto faltaba — sin esto tus
@@ -98,6 +107,13 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();   // ORDEN CRÍTICO: primero Authentication
 app.UseAuthorization();    // luego Authorization
+
+app.UseHangfireDashboard("/hangfire"); 
+
+RecurringJob.AddOrUpdate<IRecordatorioService>(
+    "procesar-recordatorios-pendientes",
+    service => service.ProcesarPendientesAsync(CancellationToken.None),
+    "*/1 * * * *");
 
 app.MapControllers();      // esto también faltaba — sin esto ningún Controller responde
 

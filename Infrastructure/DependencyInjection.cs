@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Application.Interfaces;
 using Domain.Interfaces;
+using Hangfire;
 using Infrastructure.Mensajeria;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Repositories;
@@ -22,6 +23,9 @@ namespace Infrastructure
             options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
          services.AddHttpContextAccessor();
+
+         services.AddHangfireServer();
+         
         services.AddScoped<ICurrentTenantService, CurrentTenantService>();
 
         services.AddScoped<IClienteRepository, ClienteRepository>();

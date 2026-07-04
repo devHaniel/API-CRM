@@ -1,6 +1,7 @@
 using Application.DTOs.Recordatorio;
 using Application.Interfaces;
 using Domain.Interfaces;
+using Hangfire;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -24,6 +25,18 @@ namespace API.Controllers
             try
             {
                 var id = await _recordatorioService.CrearAsync(_tenantService.TenantId, dto, ct);
+
+                var fechaProgramadaUtc = NormalizarFechaProgramada(dto.FechaProgramada);
+                var delay = fechaProgramadaUtc - DateTime.UtcNow;
+                if (delay <= TimeSpan.Zero)
+                {
+                    await _recordatorioService.ProcesarRecordatorioAsync(id);
+                }
+                else
+                {
+                    BackgroundJob.Schedule<IRecordatorioService>(service => service.ProcesarRecordatorioAsync(id), delay);
+                }
+
                 return CreatedAtAction(nameof(ObtenerPorId), new { id }, id);
             }
             catch (InvalidOperationException ex)
@@ -59,6 +72,18 @@ namespace API.Controllers
             try
             {
                 await _recordatorioService.ActualizarAsync(_tenantService.TenantId, id, dto, ct);
+
+                var fechaProgramadaUtc = NormalizarFechaProgramada(dto.FechaProgramada);
+                var delay = fechaProgramadaUtc - DateTime.UtcNow;
+                if (delay <= TimeSpan.Zero)
+                {
+                    await _recordatorioService.ProcesarRecordatorioAsync(id);
+                }
+                else
+                {
+                    BackgroundJob.Schedule<IRecordatorioService>(service => service.ProcesarRecordatorioAsync(id), delay);
+                }
+
                 return NoContent();
             }
             catch (KeyNotFoundException ex)
@@ -83,6 +108,18 @@ namespace API.Controllers
             {
                 return NotFound(new { message = ex.Message });
             }
+        }
+
+        private static DateTime NormalizarFechaProgramada(DateTime fecha)
+        {
+            if (fecha.Kind == DateTimeKind.Utc)
+                return fecha;
+
+            if (fecha.Kind == DateTimeKind.Local)
+                return fecha.ToUniversalTime();
+
+            var local = DateTime.SpecifyKind(fecha, DateTimeKind.Local);
+            return local.ToUniversalTime();
         }
     }
 }
