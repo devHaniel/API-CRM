@@ -20,6 +20,13 @@ namespace Infrastructure.Persistence.Repositories
                 .Include(r => r.Plantilla)
                 .FirstOrDefaultAsync(r => r.Id == id && r.Evento.TenantId == tenantId, ct);
 
+        public async Task<Recordatorio?> GetByIdAsync(Guid id, CancellationToken ct = default)
+            => await _context.Recordatorios
+                .Include(r => r.Evento)
+                .ThenInclude(e => e.Cliente)
+                .Include(r => r.Plantilla)
+                .FirstOrDefaultAsync(r => r.Id == id, ct);
+
         public async Task<IEnumerable<Recordatorio>> GetAllByTenantAsync(Guid tenantId, CancellationToken ct = default)
             => await _context.Recordatorios
                 .Where(r => r.Evento.TenantId == tenantId)

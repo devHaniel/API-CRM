@@ -1,4 +1,5 @@
 using System.Text;
+using API.Middleware;
 using Application;
 using Application.Interfaces;
 using Hangfire;
@@ -18,10 +19,19 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
 
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Falta configurar ConnectionStrings:DefaultConnection");
+
 builder.Services.AddHangfire(config => config
     .UseSimpleAssemblyNameTypeSerializer()
     .UseRecommendedSerializerSettings()
-    .UsePostgreSqlStorage(builder.Configuration.GetConnectionString("DefaultConnection")));
+    .UsePostgreSqlStorage(
+        connectionString,
+        new PostgreSqlStorageOptions
+        {
+            PrepareSchemaIfNecessary = false
+        }));
+        
 builder.Services.AddHangfireServer();
 
 // ============================================
@@ -102,6 +112,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseGlobalExceptionHandling();
 
 app.UseHttpsRedirection();
 

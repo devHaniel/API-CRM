@@ -6,6 +6,7 @@ namespace Application.DTOs.Evento
         string? ClienteNombre,
         string Tipo,
         DateTime Fecha,
+        string? Descripcion,
         decimal? Monto,
         string Estado,
         DateTime FechaCreacion);

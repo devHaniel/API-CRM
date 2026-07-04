@@ -112,14 +112,12 @@ namespace API.Controllers
 
         private static DateTime NormalizarFechaProgramada(DateTime fecha)
         {
-            if (fecha.Kind == DateTimeKind.Utc)
-                return fecha;
-
-            if (fecha.Kind == DateTimeKind.Local)
-                return fecha.ToUniversalTime();
-
-            var local = DateTime.SpecifyKind(fecha, DateTimeKind.Local);
-            return local.ToUniversalTime();
+            return fecha.Kind switch
+            {
+                DateTimeKind.Utc => fecha,
+                DateTimeKind.Local => fecha.ToUniversalTime(),
+                _ => DateTime.SpecifyKind(fecha, DateTimeKind.Utc)
+            };
         }
     }
 }

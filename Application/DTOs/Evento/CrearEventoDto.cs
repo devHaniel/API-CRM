@@ -4,6 +4,7 @@ namespace Application.DTOs.Evento
         Guid ClienteId,
         string Tipo,
         DateTime Fecha,
+        string? Descripcion,
         decimal? Monto,
         string? Estado);
 }

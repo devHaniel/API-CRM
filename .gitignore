@@ -3,6 +3,11 @@
 ##
 ## Get latest from `dotnet new gitignore`
 
+# Creedenciales temporales
+crdenciales.txt
+
+
+
 *.Development.json
 
 # dotenv files

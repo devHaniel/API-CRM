@@ -23,8 +23,6 @@ namespace Infrastructure
             options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
          services.AddHttpContextAccessor();
-
-         services.AddHangfireServer();
          
         services.AddScoped<ICurrentTenantService, CurrentTenantService>();
 

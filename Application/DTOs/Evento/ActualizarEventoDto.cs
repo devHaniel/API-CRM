@@ -5,5 +5,6 @@ namespace Application.DTOs.Evento
         string Tipo,
         DateTime Fecha,
         decimal? Monto,
+        string? Descripcion,
         string Estado);
 }

@@ -8,6 +8,7 @@ namespace Domain.Interfaces
     public interface IRecordatorioRepository
     {
         Task<Recordatorio?> GetByIdAsync(Guid id, Guid tenantId, CancellationToken ct = default);
+        Task<Recordatorio?> GetByIdAsync(Guid id, CancellationToken ct = default);
         Task<IEnumerable<Recordatorio>> GetAllByTenantAsync(Guid tenantId, CancellationToken ct = default);
         Task AddAsync(Recordatorio recordatorio, CancellationToken ct = default);
         void Update(Recordatorio recordatorio);

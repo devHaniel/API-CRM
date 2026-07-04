@@ -82,6 +82,9 @@ public partial class RecordAppDbContext : DbContext
                 .HasDefaultValueSql("'Pendiente'::character varying")
                 .HasColumnName("estado");
             entity.Property(e => e.Fecha).HasColumnName("fecha");
+            entity.Property(e => e.Descripcion)
+            .HasMaxLength(200)
+            .HasColumnName("descripcion");
             entity.Property(e => e.FechaCreacion)
                 .HasDefaultValueSql("now()")
                 .HasColumnName("fecha_creacion");

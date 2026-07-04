@@ -2,6 +2,7 @@ using Application.DTOs.Recordatorio;
 using Application.Interfaces;
 using Domain;
 using Domain.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Services
 {
@@ -10,11 +11,18 @@ namespace Application.Services
         private readonly IRecordatorioRepository _recordatorioRepository;
         private readonly IEventoRepository _eventoRepository;
         private readonly IMensajeService _mensajeService;
-        public RecordatorioService(IRecordatorioRepository recordatorioRepository, IEventoRepository eventoRepository, IMensajeService mensajeService)
+        private readonly ILogger<RecordatorioService> _logger;
+
+        public RecordatorioService(
+            IRecordatorioRepository recordatorioRepository,
+            IEventoRepository eventoRepository,
+            IMensajeService mensajeService,
+            ILogger<RecordatorioService> logger)
         {
             _recordatorioRepository = recordatorioRepository;
             _eventoRepository = eventoRepository;
             _mensajeService = mensajeService;
+            _logger = logger;
         }
 
         public async Task<Guid> CrearAsync(Guid tenantId, CrearRecordatorioDto dto, CancellationToken ct = default)
@@ -107,13 +115,13 @@ namespace Application.Services
 
         public async Task ProcesarRecordatorioAsync(Guid recordatorioId)
         {
-            var recordatorio = (await _recordatorioRepository.GetPendientesDeEnvioAsync(CancellationToken.None))
-                .FirstOrDefault(r => r.Id == recordatorioId);
+            var recordatorio = await _recordatorioRepository.GetByIdAsync(recordatorioId, CancellationToken.None);
 
             if (recordatorio is null)
                 return;
 
             await ProcesarRecordatorioInternoAsync(recordatorio, CancellationToken.None);
+            await _recordatorioRepository.SaveChangesAsync(CancellationToken.None);
         }
 
         public async Task ProcesarPendientesAsync(CancellationToken ct = default)
@@ -142,7 +150,10 @@ namespace Application.Services
                     throw new NotSupportedException($"El canal de envío '{recordatorio.CanalEnvio}' no está soportado.");
 
                 if (recordatorio.FechaProgramada > DateTime.UtcNow)
+                {
+                    _logger.LogInformation("Recordatorio {RecordatorioId} aún no es elegible para envío. Programado para {FechaProgramada}.", recordatorio.Id, recordatorio.FechaProgramada);
                     return;
+                }
 
                 var mensaje = ConstruirMensaje(recordatorio);
                 var enviado = await _mensajeService.EnviarWhatsAppAsync(recordatorio.Evento.Cliente.Telefono, mensaje, ct);
@@ -153,6 +164,7 @@ namespace Application.Services
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "No se pudo enviar el recordatorio {RecordatorioId}.", recordatorio.Id);
                 recordatorio.Estado = "Fallido";
                 recordatorio.DetalleError = ex.Message;
                 recordatorio.FechaEnvio = DateTime.UtcNow;
@@ -165,14 +177,12 @@ namespace Application.Services
 
         private static DateTime NormalizarFechaProgramada(DateTime fecha)
         {
-            if (fecha.Kind == DateTimeKind.Utc)
-                return fecha;
-
-            if (fecha.Kind == DateTimeKind.Local)
-                return fecha.ToUniversalTime();
-
-            var local = DateTime.SpecifyKind(fecha, DateTimeKind.Local);
-            return local.ToUniversalTime();
+            return fecha.Kind switch
+            {
+                DateTimeKind.Utc => fecha,
+                DateTimeKind.Local => fecha.ToUniversalTime(),
+                _ => DateTime.SpecifyKind(fecha, DateTimeKind.Utc)
+            };
         }
 
         private static string ConstruirMensaje(Recordatorio recordatorio)

@@ -11,10 +11,14 @@ public partial class Evento : ITenantOwned
     public Guid TenantId { get; set; }
 
     public Guid ClienteId { get; set; }
-
+    // Tipo solo puede tener 2 valores:
+    // Cita -> Una cita agendada : Monto puede ser null
+    // Pago -> Cuota o cobro pendiente : Monto es obligatorio
+    
     public string Tipo { get; set; } = null!;
 
     public DateTime Fecha { get; set; }
+    public string? Descripcion { get; set; }
 
     public decimal? Monto { get; set; }
 

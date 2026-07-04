@@ -43,6 +43,7 @@ namespace Application.Services
                 ClienteId = dto.ClienteId,
                 Tipo = dto.Tipo,
                 Fecha = dto.Fecha,
+                Descripcion = dto.Descripcion,
                 Monto = dto.Monto,
                 Estado = string.IsNullOrWhiteSpace(dto.Estado) ? "Pendiente" : dto.Estado, // Pendiente, Confirmado, Completado, Cancelado, Pagado, Vencido
                 FechaCreacion = DateTime.UtcNow
@@ -92,6 +93,7 @@ namespace Application.Services
             evento.ClienteId = dto.ClienteId;
             evento.Tipo = dto.Tipo;
             evento.Fecha = dto.Fecha;
+            evento.Descripcion = dto.Descripcion;
             evento.Monto = dto.Monto;
             evento.Estado = dto.Estado;
 
@@ -122,6 +124,7 @@ namespace Application.Services
                 e.Cliente?.Nombre,
                 e.Tipo,
                 e.Fecha,
+                e.Descripcion,
                 e.Monto,
                 e.Estado,
                 e.FechaCreacion);
