@@ -9,6 +9,8 @@ namespace Domain.Interfaces
     {
         Task<Cliente?> GetByIdAsync(Guid id, Guid tenantId, CancellationToken ct = default);
         Task<IEnumerable<Cliente>> GetAllByTenantAsync(Guid tenantId, CancellationToken ct = default);
+        Task<IEnumerable<Cliente>> GetPagedByTenantAsync(Guid tenantId, int pageNumber, int pageSize, CancellationToken ct = default);
+        Task<int> CountByTenantAsync(Guid tenantId, CancellationToken ct = default);
         Task AddAsync(Cliente cliente, CancellationToken ct = default);
         void Update(Cliente cliente);
         void Remove(Cliente cliente);

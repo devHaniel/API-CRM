@@ -23,6 +23,17 @@ namespace Infrastructure.Persistence.Repositories
                 .OrderByDescending(p => p.FechaCreacion)
                 .ToListAsync(ct);
 
+        public async Task<IEnumerable<PlantillasMensaje>> GetPagedByTenantAsync(Guid tenantId, int pageNumber, int pageSize, CancellationToken ct = default)
+            => await _context.PlantillasMensajes
+                .Where(p => p.TenantId == tenantId)
+                .OrderByDescending(p => p.FechaCreacion)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(ct);
+
+        public async Task<int> CountByTenantAsync(Guid tenantId, CancellationToken ct = default)
+            => await _context.PlantillasMensajes.CountAsync(p => p.TenantId == tenantId, ct);
+
         public async Task AddAsync(PlantillasMensaje plantilla, CancellationToken ct = default)
             => await _context.PlantillasMensajes.AddAsync(plantilla, ct);
 

@@ -31,10 +31,24 @@ namespace Infrastructure.Persistence.Repositories
             => await _context.Recordatorios
                 .Where(r => r.Evento.TenantId == tenantId)
                 .Include(r => r.Evento)
-                .ThenInclude(e => e.Cliente)
+                    .ThenInclude(e => e.Cliente)
                 .Include(r => r.Plantilla)
                 .OrderBy(r => r.FechaProgramada)
                 .ToListAsync(ct);
+
+        public async Task<IEnumerable<Recordatorio>> GetPagedByTenantAsync(Guid tenantId, int pageNumber, int pageSize, CancellationToken ct = default)
+            => await _context.Recordatorios
+                .Where(r => r.Evento.TenantId == tenantId)
+                .Include(r => r.Evento)
+                    .ThenInclude(e => e.Cliente)
+                .Include(r => r.Plantilla)
+                .OrderBy(r => r.FechaProgramada)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(ct);
+
+        public async Task<int> CountByTenantAsync(Guid tenantId, CancellationToken ct = default)
+            => await _context.Recordatorios.CountAsync(r => r.Evento.TenantId == tenantId, ct);
 
         public async Task AddAsync(Recordatorio recordatorio, CancellationToken ct = default)
             => await _context.Recordatorios.AddAsync(recordatorio, ct);

@@ -10,6 +10,8 @@ namespace Domain.Interfaces
         Task<Recordatorio?> GetByIdAsync(Guid id, Guid tenantId, CancellationToken ct = default);
         Task<Recordatorio?> GetByIdAsync(Guid id, CancellationToken ct = default);
         Task<IEnumerable<Recordatorio>> GetAllByTenantAsync(Guid tenantId, CancellationToken ct = default);
+        Task<IEnumerable<Recordatorio>> GetPagedByTenantAsync(Guid tenantId, int pageNumber, int pageSize, CancellationToken ct = default);
+        Task<int> CountByTenantAsync(Guid tenantId, CancellationToken ct = default);
         Task AddAsync(Recordatorio recordatorio, CancellationToken ct = default);
         void Update(Recordatorio recordatorio);
         void Remove(Recordatorio recordatorio);

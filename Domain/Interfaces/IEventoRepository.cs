@@ -9,6 +9,8 @@ namespace Domain.Interfaces
     {
         Task<Evento?> GetByIdAsync(Guid id, Guid tenantId, CancellationToken ct = default);
         Task<IEnumerable<Evento>> GetAllByTenantAsync(Guid tenantId, CancellationToken ct = default);
+        Task<IEnumerable<Evento>> GetPagedByTenantAsync(Guid tenantId, int pageNumber, int pageSize, CancellationToken ct = default);
+        Task<int> CountByTenantAsync(Guid tenantId, CancellationToken ct = default);
         Task AddAsync(Evento evento, CancellationToken ct = default);
         void Update(Evento evento);
         void Remove(Evento evento);

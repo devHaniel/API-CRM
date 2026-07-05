@@ -53,9 +53,12 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<RecordatorioDto>>> ObtenerTodos(CancellationToken ct)
+        public async Task<ActionResult<Application.DTOs.Common.PagedResultDto<RecordatorioDto>>> ObtenerTodos(
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10,
+            CancellationToken ct = default)
         {
-            var recordatorios = await _recordatorioService.ObtenerTodosAsync(_tenantService.TenantId, ct);
+            var recordatorios = await _recordatorioService.ObtenerTodosAsync(_tenantService.TenantId, pageNumber, pageSize, ct);
             return Ok(recordatorios);
         }
 

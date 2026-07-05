@@ -1,17 +1,65 @@
 using System.Text;
+using System.Threading.RateLimiting;
 using API.Middleware;
 using Application;
+using Application.Configuration;
 using Application.Interfaces;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Infrastructure;
 using Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// ============================================
+// Validaciones de configuración al iniciar (Startup Validation)
+// ============================================
+builder.Services.AddOptions<JwtSettings>()
+    .Bind(builder.Configuration.GetSection("Jwt"))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
+builder.Services.AddOptions<TwilioSettings>()
+    .Bind(builder.Configuration.GetSection("Twilio"))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
+// ============================================
+// Configuración de CORS
+// ============================================
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("DefaultCors", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
+// ============================================
+// Configuración de Rate Limiting
+// ============================================
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.User.Identity?.Name ?? httpContext.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
+            factory: partition => new FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = 100,
+                QueueLimit = 2,
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                Window = TimeSpan.FromMinutes(1)
+            }));
+});
 
 // ============================================
 // Servicios de capas internas
@@ -116,6 +164,9 @@ if (app.Environment.IsDevelopment())
 app.UseGlobalExceptionHandling();
 
 app.UseHttpsRedirection();
+
+app.UseCors("DefaultCors");
+app.UseRateLimiter();
 
 app.UseAuthentication();   // ORDEN CRÍTICO: primero Authentication
 app.UseAuthorization();    // luego Authorization

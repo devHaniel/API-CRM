@@ -36,6 +36,7 @@ namespace Infrastructure
 
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+        services.AddScoped<IDashboardService, DashboardService>();
 
         return services;
     }

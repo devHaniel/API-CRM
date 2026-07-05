@@ -25,6 +25,18 @@ namespace Infrastructure.Persistence.Repositories
                 .OrderBy(e => e.Fecha)
                 .ToListAsync(ct);
 
+        public async Task<IEnumerable<Evento>> GetPagedByTenantAsync(Guid tenantId, int pageNumber, int pageSize, CancellationToken ct = default)
+            => await _context.Eventos
+                .Where(e => e.TenantId == tenantId)
+                .Include(e => e.Cliente)
+                .OrderBy(e => e.Fecha)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(ct);
+
+        public async Task<int> CountByTenantAsync(Guid tenantId, CancellationToken ct = default)
+            => await _context.Eventos.CountAsync(e => e.TenantId == tenantId, ct);
+
         public async Task AddAsync(Evento evento, CancellationToken ct = default)
             => await _context.Eventos.AddAsync(evento, ct);
 

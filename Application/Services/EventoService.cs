@@ -1,8 +1,10 @@
 using System.ComponentModel.DataAnnotations;
+using Application.DTOs.Common;
 using Application.DTOs.Evento;
 using Application.Interfaces;
 using Domain;
 using Domain.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Services
 {
@@ -10,29 +12,38 @@ namespace Application.Services
     {
         private readonly IEventoRepository _eventoRepository;
         private readonly IClienteRepository _clienteRepository;
+        private readonly ILogger<EventoService> _logger;
 
-        public EventoService(IEventoRepository eventoRepository, IClienteRepository clienteRepository)
+        public EventoService(IEventoRepository eventoRepository, IClienteRepository clienteRepository, ILogger<EventoService> logger)
         {
             _eventoRepository = eventoRepository;
             _clienteRepository = clienteRepository;
+            _logger = logger;
         }
 
         public async Task<Guid> CrearAsync(Guid tenantId, CrearEventoDto dto, CancellationToken ct = default)
         {
-            await ValidarClienteDelTenantAsync(tenantId, dto.ClienteId, ct);
-
-            // Tipo solo puede tener 2 valores:
-            // Cita -> Una cita agendada : Monto puede ser null
-            // Pago -> Cuota o cobro pendiente : Monto es obligatorio
-
+            _logger.LogInformation("Iniciando creación de evento tipo {Tipo} para el Tenant {TenantId}.", dto.Tipo, tenantId);
+            
+            try
+            {
+                await ValidarClienteDelTenantAsync(tenantId, dto.ClienteId, ct);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Validación de cliente fallida para el Tenant {TenantId}. Cliente: {ClienteId}.", tenantId, dto.ClienteId);
+                throw;
+            }
 
             if (dto.Tipo == "Pago" && dto.Monto is null)
             {
+                _logger.LogWarning("Validación fallida: Monto es obligatorio para eventos tipo Pago.");
                 throw new ValidationException("El monto es obligatorio cuando el tipo es 'Pago'.");
             }
 
             if (dto.Tipo != "Pago" && dto.Tipo != "Cita")
             {
+                _logger.LogWarning("Validación fallida: Tipo de evento inválido '{Tipo}'.", dto.Tipo);
                 throw new ValidationException($"Tipo de evento inválido: '{dto.Tipo}'.");
             }
 
@@ -45,27 +56,35 @@ namespace Application.Services
                 Fecha = dto.Fecha,
                 Descripcion = dto.Descripcion,
                 Monto = dto.Monto,
-                Estado = string.IsNullOrWhiteSpace(dto.Estado) ? "Pendiente" : dto.Estado, // Pendiente, Confirmado, Completado, Cancelado, Pagado, Vencido
+                Estado = string.IsNullOrWhiteSpace(dto.Estado) ? "Pendiente" : dto.Estado,
                 FechaCreacion = DateTime.UtcNow
             };
-
 
             await _eventoRepository.AddAsync(evento, ct);
             await _eventoRepository.SaveChangesAsync(ct);
 
+            _logger.LogInformation("Evento creado exitosamente con ID {EventoId} para el Tenant {TenantId}.", evento.Id, tenantId);
             return evento.Id;
         }
 
         public async Task<EventoDto?> ObtenerPorIdAsync(Guid tenantId, Guid id, CancellationToken ct = default)
         {
+            _logger.LogInformation("Obteniendo evento {EventoId} para el Tenant {TenantId}.", id, tenantId);
             var evento = await _eventoRepository.GetByIdAsync(id, tenantId, ct);
             return evento is null ? null : MapToDto(evento);
         }
 
-        public async Task<IEnumerable<EventoDto>> ObtenerTodosAsync(Guid tenantId, CancellationToken ct = default)
+        public async Task<PagedResultDto<EventoDto>> ObtenerTodosAsync(Guid tenantId, int pageNumber = 1, int pageSize = 10, CancellationToken ct = default)
         {
-            var eventos = await _eventoRepository.GetAllByTenantAsync(tenantId, ct);
-            return eventos.Select(MapToDto);
+            _logger.LogInformation("Consultando lista paginada de eventos para el Tenant {TenantId}. Página: {PageNumber}, Tamaño: {PageSize}", tenantId, pageNumber, pageSize);
+            
+            var totalCount = await _eventoRepository.CountByTenantAsync(tenantId, ct);
+            var eventos = await _eventoRepository.GetPagedByTenantAsync(tenantId, pageNumber, pageSize, ct);
+            
+            var items = eventos.Select(MapToDto);
+            var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+
+            return new PagedResultDto<EventoDto>(items, pageNumber, pageSize, totalCount, totalPages);
         }
 
         public async Task<IEnumerable<EventoDto>> ObtenerProximosAsync(Guid tenantId, DateTime desde, DateTime hasta, CancellationToken ct = default)

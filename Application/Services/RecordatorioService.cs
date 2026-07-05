@@ -1,3 +1,4 @@
+using Application.DTOs.Common;
 using Application.DTOs.Recordatorio;
 using Application.Interfaces;
 using Domain;
@@ -27,8 +28,18 @@ namespace Application.Services
 
         public async Task<Guid> CrearAsync(Guid tenantId, CrearRecordatorioDto dto, CancellationToken ct = default)
         {
-            await ValidarEventoDelTenantAsync(tenantId, dto.EventoId, ct);
-            await ValidarPlantillaDelTenantAsync(tenantId, dto.PlantillaId, ct);
+            _logger.LogInformation("Iniciando creación de recordatorio para el Tenant {TenantId}. Evento: {EventoId}.", tenantId, dto.EventoId);
+
+            try
+            {
+                await ValidarEventoDelTenantAsync(tenantId, dto.EventoId, ct);
+                await ValidarPlantillaDelTenantAsync(tenantId, dto.PlantillaId, ct);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Validación fallida al intentar crear recordatorio para el Tenant {TenantId}.", tenantId);
+                throw;
+            }
 
             var fechaProgramadaUtc = NormalizarFechaProgramada(dto.FechaProgramada);
 
@@ -46,19 +57,28 @@ namespace Application.Services
             await _recordatorioRepository.AddAsync(recordatorio, ct);
             await _recordatorioRepository.SaveChangesAsync(ct);
 
+            _logger.LogInformation("Recordatorio creado exitosamente con ID {RecordatorioId} para el Tenant {TenantId}.", recordatorio.Id, tenantId);
             return recordatorio.Id;
         }
 
         public async Task<RecordatorioDto?> ObtenerPorIdAsync(Guid tenantId, Guid id, CancellationToken ct = default)
         {
+            _logger.LogInformation("Obteniendo recordatorio {RecordatorioId} para el Tenant {TenantId}.", id, tenantId);
             var recordatorio = await _recordatorioRepository.GetByIdAsync(id, tenantId, ct);
             return recordatorio is null ? null : MapToDto(recordatorio);
         }
 
-        public async Task<IEnumerable<RecordatorioDto>> ObtenerTodosAsync(Guid tenantId, CancellationToken ct = default)
+        public async Task<PagedResultDto<RecordatorioDto>> ObtenerTodosAsync(Guid tenantId, int pageNumber = 1, int pageSize = 10, CancellationToken ct = default)
         {
-            var recordatorios = await _recordatorioRepository.GetAllByTenantAsync(tenantId, ct);
-            return recordatorios.Select(MapToDto);
+            _logger.LogInformation("Consultando lista paginada de recordatorios para el Tenant {TenantId}. Página: {PageNumber}, Tamaño: {PageSize}", tenantId, pageNumber, pageSize);
+
+            var totalCount = await _recordatorioRepository.CountByTenantAsync(tenantId, ct);
+            var recordatorios = await _recordatorioRepository.GetPagedByTenantAsync(tenantId, pageNumber, pageSize, ct);
+
+            var items = recordatorios.Select(MapToDto);
+            var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+
+            return new PagedResultDto<RecordatorioDto>(items, pageNumber, pageSize, totalCount, totalPages);
         }
 
         public async Task<IEnumerable<RecordatorioDto>> ObtenerPendientesDeEnvioAsync(Guid tenantId, CancellationToken ct = default)

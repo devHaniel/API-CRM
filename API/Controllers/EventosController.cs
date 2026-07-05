@@ -1,3 +1,4 @@
+using Application.DTOs.Common;
 using Application.DTOs.Evento;
 using Application.Interfaces;
 using Domain.Interfaces;
@@ -40,9 +41,12 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<EventoDto>>> ObtenerTodos(CancellationToken ct)
+        public async Task<ActionResult<PagedResultDto<EventoDto>>> ObtenerTodos(
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10,
+            CancellationToken ct = default)
         {
-            var eventos = await _eventoService.ObtenerTodosAsync(_tenantService.TenantId, ct);
+            var eventos = await _eventoService.ObtenerTodosAsync(_tenantService.TenantId, pageNumber, pageSize, ct);
             return Ok(eventos);
         }
 

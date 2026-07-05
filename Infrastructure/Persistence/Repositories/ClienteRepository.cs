@@ -19,6 +19,16 @@ namespace Infrastructure.Persistence.Repositories
         public async Task<IEnumerable<Cliente>> GetAllByTenantAsync(Guid tenantId, CancellationToken ct = default)
             => await _context.Clientes.Where(c => c.TenantId == tenantId).ToListAsync(ct);
 
+        public async Task<IEnumerable<Cliente>> GetPagedByTenantAsync(Guid tenantId, int pageNumber, int pageSize, CancellationToken ct = default)
+            => await _context.Clientes
+                .Where(c => c.TenantId == tenantId)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(ct);
+
+        public async Task<int> CountByTenantAsync(Guid tenantId, CancellationToken ct = default)
+            => await _context.Clientes.CountAsync(c => c.TenantId == tenantId, ct);
+
         public async Task AddAsync(Cliente cliente, CancellationToken ct = default)
             => await _context.Clientes.AddAsync(cliente, ct);
 

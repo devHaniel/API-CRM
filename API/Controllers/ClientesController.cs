@@ -38,9 +38,12 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ClienteDto>>> ObtenerTodos(CancellationToken ct)
+        public async Task<ActionResult<Application.DTOs.Common.PagedResultDto<ClienteDto>>> ObtenerTodos(
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10,
+            CancellationToken ct = default)
         {
-            var clientes = await _clienteService.ObtenerTodosAsync(_tenantService.TenantId, ct);
+            var clientes = await _clienteService.ObtenerTodosAsync(_tenantService.TenantId, pageNumber, pageSize, ct);
             return Ok(clientes);
         }
 
