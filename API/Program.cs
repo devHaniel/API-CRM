@@ -168,8 +168,8 @@ app.UseHttpsRedirection();
 app.UseCors("DefaultCors");
 app.UseRateLimiter();
 
-app.UseAuthentication();   // ORDEN CRÍTICO: primero Authentication
-app.UseAuthorization();    // luego Authorization
+app.UseAuthentication();  
+app.UseAuthorization();   
 
 app.UseHangfireDashboard("/hangfire"); 
 
@@ -178,6 +178,6 @@ RecurringJob.AddOrUpdate<IRecordatorioService>(
     service => service.ProcesarPendientesAsync(CancellationToken.None),
     "*/1 * * * *");
 
-app.MapControllers();      // esto también faltaba — sin esto ningún Controller responde
+app.MapControllers();     
 
 app.Run();

@@ -1,0 +1,172 @@
+@using Front.Models.Recordatorios
+@model RecordatorioFormViewModel
+@{
+    ViewData["Title"] = "Nuevo recordatorio";
+}
+
+<h1 class="text-2xl font-bold mb-6">Nuevo recordatorio</h1>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+
+    <!-- ============ COLUMNA IZQUIERDA: FORMULARIO ============ -->
+    <div class="bg-white p-8 rounded-lg shadow">
+        <form asp-action="Create" method="post" id="recordatorioForm">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="bg-red-50 text-red-700 border border-red-200 rounded-md p-3 mb-4 text-sm"></div>
+
+            <div class="space-y-4">
+                <div>
+                    <label asp-for="EventoId" class="block text-sm font-medium text-gray-700"></label>
+                    <select asp-for="EventoId" asp-items="Model.EventosDisponibles" id="eventoSelect"
+                            class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">-- Selecciona un evento --</option>
+                    </select>
+                    <span asp-validation-for="EventoId" class="text-red-600 text-sm"></span>
+                </div>
+
+                <div>
+                    <label asp-for="PlantillaId" class="block text-sm font-medium text-gray-700"></label>
+                    <select asp-for="PlantillaId" asp-items="Model.PlantillasDisponibles" id="plantillaSelect"
+                            class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">-- Selecciona una plantilla --</option>
+                    </select>
+                    <span asp-validation-for="PlantillaId" class="text-red-600 text-sm"></span>
+                </div>
+
+                <div>
+                    <label asp-for="CanalEnvio" class="block text-sm font-medium text-gray-700"></label>
+                    <select asp-for="CanalEnvio" id="canalSelect"
+                            class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="WhatsApp">WhatsApp</option>
+                        <option value="Email">Email</option>
+                    </select>
+                    <span asp-validation-for="CanalEnvio" class="text-red-600 text-sm"></span>
+                </div>
+
+                <div>
+                    <label asp-for="FechaProgramada" class="block text-sm font-medium text-gray-700"></label>
+                    <input asp-for="FechaProgramada" type="datetime-local"
+                           class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    <span asp-validation-for="FechaProgramada" class="text-red-600 text-sm"></span>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 mt-6">
+                <a asp-action="Index" class="px-4 py-2 rounded-md border border-gray-300 text-gray-600 hover:bg-gray-50 transition">
+                    Cancelar
+                </a>
+                <button type="submit" class="bg-blue-600 text-white px-5 py-2 rounded-md font-medium hover:bg-blue-700 transition">
+                    Guardar recordatorio
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- ============ COLUMNA DERECHA: PREVIEW ESTILO WHATSAPP ============ -->
+    <div class="sticky top-6">
+        <p class="text-sm font-medium text-gray-500 mb-3">Vista previa del mensaje</p>
+
+        <div class="bg-[#e5ddd5] rounded-lg shadow p-4" style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2260%22 height=%2260%22></svg>');">
+            <!-- Header estilo chat de WhatsApp -->
+            <div class="bg-[#075e54] text-white rounded-t-lg px-4 py-3 flex items-center gap-3 -m-4 mb-4">
+                <div class="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-sm font-semibold">
+                    <span id="previewIniciales">?</span>
+                </div>
+                <div>
+                    <p class="text-sm font-medium" id="previewNombreCliente">Selecciona un evento</p>
+                    <p class="text-xs text-white/70">en línea</p>
+                </div>
+            </div>
+
+            <!-- Burbuja del mensaje -->
+            <div class="flex justify-end">
+                <div class="bg-[#dcf8c6] rounded-lg rounded-tr-none px-3 py-2 max-w-[85%] shadow-sm">
+                    <p class="text-sm text-gray-800 whitespace-pre-line" id="previewMensaje">
+                        Selecciona un evento y una plantilla para ver la vista previa aquí.
+                    </p>
+                    <p class="text-[10px] text-gray-500 text-right mt-1">
+                        <span id="previewHora">--:--</span> ✓✓
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <p class="text-xs text-gray-400 mt-2">
+            Esta es una simulación — el mensaje real puede variar según el proveedor.
+        </p>
+    </div>
+</div>
+
+@{
+    var jsonOptions = new System.Text.Json.JsonSerializerOptions
+    {
+        PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+    };
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Datos crudos inyectados desde el servidor, sin llamadas AJAX
+        const eventosData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.EventosData, jsonOptions));
+        const plantillasData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.PlantillasData, jsonOptions));
+
+        const eventoSelect = document.getElementById('eventoSelect');
+        const plantillaSelect = document.getElementById('plantillaSelect');
+        const fechaInput = document.getElementById('FechaProgramada');
+
+        const previewNombreCliente = document.getElementById('previewNombreCliente');
+        const previewIniciales = document.getElementById('previewIniciales');
+        const previewMensaje = document.getElementById('previewMensaje');
+        const previewHora = document.getElementById('previewHora');
+
+        function obtenerEventoSeleccionado() {
+            return eventosData.find(e => e.id === eventoSelect.value);
+        }
+
+        function obtenerPlantillaSeleccionada() {
+            return plantillasData.find(p => p.id === plantillaSelect.value);
+        }
+
+        function construirMensaje(evento, plantilla) {
+            if (!plantilla || !plantilla.contenido) {
+                return 'Esta plantilla no tiene contenido definido.';
+            }
+
+            const fechaTexto = evento
+                ? new Date(evento.fecha).toLocaleDateString('es-HN', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                : 'la fecha';
+
+            return plantilla.contenido
+                .replace(/{clienteNombre}/gi, evento?.clienteNombre ?? 'cliente')
+                .replace(/{fecha}/gi, fechaTexto)
+                .replace(/{tipo}/gi, evento?.tipo ?? 'evento')
+                .replace(/{descripcion}/gi, evento?.descripcion ?? 'evento');
+        }
+
+        function actualizarPreview() {
+            const evento = obtenerEventoSeleccionado();
+            const plantilla = obtenerPlantillaSeleccionada();
+
+            if (evento) {
+                previewNombreCliente.textContent = evento.clienteNombre;
+                previewIniciales.textContent = evento.clienteNombre.charAt(0).toUpperCase();
+            } else {
+                previewNombreCliente.textContent = 'Selecciona un evento';
+                previewIniciales.textContent = '?';
+            }
+
+            previewMensaje.textContent = plantilla
+                ? construirMensaje(evento, plantilla)
+                : 'Selecciona una plantilla para ver el mensaje.';
+
+            const ahora = new Date();
+            previewHora.textContent = ahora.toLocaleTimeString('es-HN', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        eventoSelect.addEventListener('change', actualizarPreview);
+        plantillaSelect.addEventListener('change', actualizarPreview);
+
+        actualizarPreview(); // estado inicial
+    </script>
+}

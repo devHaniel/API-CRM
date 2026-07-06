@@ -1,0 +1,66 @@
+@using Front.Models.Clientes
+@model ClientesIndexViewModel
+@{
+    ViewData["Title"] = "Clientes";
+}
+
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Clientes</h1>
+    <a asp-action="Create"
+       class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition">
+        + Nuevo cliente
+    </a>
+</div>
+
+<div class="bg-white rounded-lg shadow overflow-hidden">
+    <table class="min-w-full text-sm">
+        <thead>
+            <tr class="text-left text-gray-500 border-b bg-gray-50">
+                <th class="p-3">Nombre</th>
+                <th class="p-3">Teléfono</th>
+                <th class="p-3">Email</th>
+                <th class="p-3 text-right">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Clientes.Any())
+            {
+                <tr>
+                    <td colspan="4" class="p-6 text-center text-gray-400">
+                        No hay clientes registrados todavía.
+                    </td>
+                </tr>
+            }
+            @foreach (var cliente in Model.Clientes)
+            {
+                <tr class="border-b last:border-0 hover:bg-gray-50">
+                    <td class="p-3 font-medium text-gray-900">@cliente.Nombre</td>
+                    <td class="p-3 text-gray-600">@cliente.Telefono</td>
+                    <td class="p-3 text-gray-600">@cliente.Email</td>
+                    <td class="p-3 text-right space-x-2">
+                        <a asp-action="Edit" asp-route-id="@cliente.Id"
+                           class="text-blue-600 hover:underline">Editar</a>
+                        <form asp-action="Delete" asp-route-id="@cliente.Id" method="post" class="inline"
+                              onsubmit="return confirm('¿Eliminar este cliente?');">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="text-red-600 hover:underline">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@if (Model.TotalPages > 1)
+{
+    <div class="flex justify-center items-center gap-2 mt-4">
+        @for (int i = 1; i <= Model.TotalPages; i++)
+        {
+            <a asp-action="Index" asp-route-pageNumber="@i" asp-route-pageSize="@Model.PageSize"
+               class="px-3 py-1 rounded-md text-sm @(i == Model.PageNumber ? "bg-blue-600 text-white" : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50")">
+                @i
+            </a>
+        }
+    </div>
+}

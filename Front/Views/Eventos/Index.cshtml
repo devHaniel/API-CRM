@@ -1,0 +1,105 @@
+@using Front.Models.Eventos
+@model EventosIndexViewModel
+@{
+    ViewData["Title"] = "Eventos";
+}
+
+<div class="flex justify-between items-center mb-6">
+    <div>
+        <h1 class="text-2xl font-bold text-gray-900">Eventos</h1>
+        <p class="text-sm text-gray-500 mt-1">@Model.TotalCount evento(s) en total</p>
+    </div>
+    <a asp-action="Create" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition">
+        + Nuevo evento
+    </a>
+</div>
+
+<div class="bg-white rounded-lg shadow overflow-hidden">
+    <table class="min-w-full text-sm">
+        <thead>
+            <tr class="text-left text-gray-500 border-b bg-gray-50">
+                <th class="p-3">Cliente</th>
+                <th class="p-3">Tipo</th>
+                <th class="p-3">Descripción</th>
+                <th class="p-3">Fecha</th>
+                <th class="p-3">Monto</th>
+                <th class="p-3">Estado</th>
+                <th class="p-3 text-right">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Eventos.Any())
+            {
+                <tr>
+                    <td colspan="7" class="p-6 text-center text-gray-400">
+                        No hay eventos registrados todavía.
+                    </td>
+                </tr>
+            }
+            @foreach (var evento in Model.Eventos)
+            {
+                <tr class="border-b last:border-0 hover:bg-gray-50">
+                    <td class="p-3 font-medium text-gray-900">@evento.ClienteNombre</td>
+                    <td class="p-3">
+                        <span class="px-2 py-1 rounded-full text-xs @(evento.Tipo == "Pago" ? "bg-amber-50 text-amber-700" : "bg-blue-50 text-blue-700")">
+                            @evento.Tipo
+                        </span>
+                    </td>
+                    <td class="p-3 text-gray-600">@(evento.Descripcion ?? "-")</td>
+                    <td class="p-3 text-gray-600">@evento.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td class="p-3 text-gray-600">@(evento.Monto?.ToString("C") ?? "-")</td>
+                    <td class="p-3">
+                        <span class="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-700">
+                            @evento.Estado
+                        </span>
+                    </td>
+                    <td class="p-3 text-right space-x-2">
+                        <a asp-action="Edit" asp-route-id="@evento.Id" class="text-blue-600 hover:underline">Editar</a>
+                        <form asp-action="Delete" asp-route-id="@evento.Id" method="post" class="inline"
+                              onsubmit="return confirm('¿Eliminar este evento?');">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="text-red-600 hover:underline">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@if (Model.TotalPages > 1)
+{
+    <div class="flex justify-center items-center gap-2 mt-4">
+        @if (Model.PageNumber > 1)
+        {
+            <a asp-action="Index" asp-route-pageNumber="@(Model.PageNumber - 1)" asp-route-pageSize="@Model.PageSize"
+               class="px-3 py-1 rounded-md text-sm bg-white text-gray-600 border border-gray-300 hover:bg-gray-50">Anterior</a>
+        }
+        @{
+            int inicio = Math.Max(1, Model.PageNumber - 2);
+            int fin = Math.Min(Model.TotalPages, Model.PageNumber + 2);
+        }
+        @if (inicio > 1)
+        {
+            <a asp-action="Index" asp-route-pageNumber="1" asp-route-pageSize="@Model.PageSize"
+               class="px-3 py-1 rounded-md text-sm bg-white text-gray-600 border border-gray-300 hover:bg-gray-50">1</a>
+            <span class="text-gray-400">...</span>
+        }
+        @for (int i = inicio; i <= fin; i++)
+        {
+            <a asp-action="Index" asp-route-pageNumber="@i" asp-route-pageSize="@Model.PageSize"
+               class="px-3 py-1 rounded-md text-sm @(i == Model.PageNumber ? "bg-blue-600 text-white" : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50")">@i</a>
+        }
+        @if (fin < Model.TotalPages)
+        {
+            <span class="text-gray-400">...</span>
+            <a asp-action="Index" asp-route-pageNumber="@Model.TotalPages" asp-route-pageSize="@Model.PageSize"
+               class="px-3 py-1 rounded-md text-sm bg-white text-gray-600 border border-gray-300 hover:bg-gray-50">@Model.TotalPages</a>
+        }
+        @if (Model.PageNumber < Model.TotalPages)
+        {
+            <a asp-action="Index" asp-route-pageNumber="@(Model.PageNumber + 1)" asp-route-pageSize="@Model.PageSize"
+               class="px-3 py-1 rounded-md text-sm bg-white text-gray-600 border border-gray-300 hover:bg-gray-50">Siguiente</a>
+        }
+    </div>
+}

@@ -1,0 +1,40 @@
+@using Front.Models.Plantillas
+@model PlantillaFormViewModel
+
+<div asp-validation-summary="ModelOnly" class="bg-red-50 text-red-700 border border-red-200 rounded-md p-3 mb-4 text-sm"></div>
+
+<input type="hidden" asp-for="Id" />
+
+<div class="space-y-4">
+    <div>
+        <label asp-for="Tipo" class="block text-sm font-medium text-gray-700"></label>
+        <select asp-for="Tipo" asp-items="Model.TiposDisponibles"
+                class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </select>
+        <span asp-validation-for="Tipo" class="text-red-600 text-sm"></span>
+    </div>
+
+    <div>
+        <label asp-for="Contenido" class="block text-sm font-medium text-gray-700"></label>
+        <textarea asp-for="Contenido" rows="4"
+                  class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Ej: Hola {clienteNombre}, te recordamos tu {tipo} el {fecha}."></textarea>
+        <span asp-validation-for="Contenido" class="text-red-600 text-sm"></span>
+
+        <div class="mt-2 bg-blue-50 border border-blue-100 rounded-md p-3 text-xs text-blue-800">
+            <p class="font-medium mb-1">Variables disponibles:</p>
+            <div class="flex flex-wrap gap-2">
+                <code class="bg-white px-2 py-0.5 rounded border border-blue-200">{clienteNombre}</code>
+                <code class="bg-white px-2 py-0.5 rounded border border-blue-200">{fecha}</code>
+                <code class="bg-white px-2 py-0.5 rounded border border-blue-200">{tipo}</code>
+                <code class="bg-white px-2 py-0.5 rounded border border-blue-200">{descripcion}</code>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex items-center">
+        <input asp-for="Activo" type="checkbox"
+               class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+        <label asp-for="Activo" class="ms-2 text-sm text-gray-700"></label>
+    </div>
+</div>

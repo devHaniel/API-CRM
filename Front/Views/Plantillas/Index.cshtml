@@ -1,0 +1,48 @@
+@using Front.Models.Plantillas
+@model List<PlantillaListItemViewModel>
+@{
+    ViewData["Title"] = "Plantillas de mensaje";
+}
+
+<div class="flex justify-between items-center mb-6">
+    <div>
+        <h1 class="text-2xl font-bold text-gray-900">Plantillas de mensaje</h1>
+        <p class="text-sm text-gray-500 mt-1">@Model.Count plantilla(s) configurada(s)</p>
+    </div>
+    <a asp-action="Create" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition">
+        + Nueva plantilla
+    </a>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    @if (!Model.Any())
+    {
+        <div class="col-span-2 bg-white rounded-lg shadow p-6 text-center text-gray-400">
+            No hay plantillas configuradas todavía.
+        </div>
+    }
+    @foreach (var plantilla in Model)
+    {
+        <div class="bg-white rounded-lg shadow p-5">
+            <div class="flex justify-between items-start mb-3">
+                <span class="px-2 py-1 rounded-full text-xs bg-blue-50 text-blue-700 font-medium">
+                    @(plantilla.Tipo == "RecordatorioCita" ? "Recordatorio de Cita" : "Recordatorio de Pago")
+                </span>
+                <span class="px-2 py-1 rounded-full text-xs @(plantilla.Activo ? "bg-green-50 text-green-700" : "bg-gray-100 text-gray-500")">
+                    @(plantilla.Activo ? "Activa" : "Inactiva")
+                </span>
+            </div>
+
+            <p class="text-sm text-gray-700 whitespace-pre-line mb-4">@plantilla.Contenido</p>
+
+            <div class="flex justify-end gap-3 text-sm">
+                <a asp-action="Edit" asp-route-id="@plantilla.Id" class="text-blue-600 hover:underline">Editar</a>
+                <form asp-action="Delete" asp-route-id="@plantilla.Id" method="post" class="inline"
+                      onsubmit="return confirm('¿Eliminar esta plantilla?');">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="text-red-600 hover:underline">Eliminar</button>
+                </form>
+            </div>
+        </div>
+    }
+</div>

@@ -1,0 +1,78 @@
+@using Front.Models.Auth
+@model RegisterViewModel
+@{
+    ViewData["Title"] = "Crear cuenta";
+}
+
+<div class="max-w-md mx-auto mt-10 bg-white p-8 rounded-lg shadow">
+    <h1 class="text-2xl font-bold mb-2">Crea tu cuenta</h1>
+    <p class="text-gray-500 mb-6">Registra tu negocio en RecorApp</p>
+
+    @if (Model.ErrorMessage is not null)
+    {
+        <div class="bg-red-50 text-red-700 border border-red-200 rounded-md p-3 mb-4 text-sm">
+            @Model.ErrorMessage
+        </div>
+    }
+
+    <form asp-controller="Auth" asp-action="Register" method="post" class="space-y-4">
+        <div asp-validation-summary="ModelOnly" class="text-red-600 text-sm"></div>
+
+        <div>
+            <label asp-for="Input.NombreNegocio" class="block text-sm font-medium text-gray-700"></label>
+            <input asp-for="Input.NombreNegocio"
+                   class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   placeholder="Ej: Spa Bella Vida" />
+            <span asp-validation-for="Input.NombreNegocio" class="text-red-600 text-sm"></span>
+        </div>
+
+        <div>
+            <label asp-for="Input.Rubro" class="block text-sm font-medium text-gray-700"></label>
+            <input asp-for="Input.Rubro"
+                   class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   placeholder="Ej: Spa, Taller, Consultorio" />
+            <span asp-validation-for="Input.Rubro" class="text-red-600 text-sm"></span>
+        </div>
+
+        <div>
+            <label asp-for="Input.NombreAdmin" class="block text-sm font-medium text-gray-700"></label>
+            <input asp-for="Input.NombreAdmin"
+                   class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <span asp-validation-for="Input.NombreAdmin" class="text-red-600 text-sm"></span>
+        </div>
+
+        <div>
+            <label asp-for="Input.Email" class="block text-sm font-medium text-gray-700"></label>
+            <input asp-for="Input.Email" type="email"
+                   class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <span asp-validation-for="Input.Email" class="text-red-600 text-sm"></span>
+        </div>
+
+        <div>
+            <label asp-for="Input.Password" class="block text-sm font-medium text-gray-700"></label>
+            <input asp-for="Input.Password" type="password"
+                   class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <span asp-validation-for="Input.Password" class="text-red-600 text-sm"></span>
+        </div>
+
+        <div>
+            <label asp-for="Input.ConfirmPassword" class="block text-sm font-medium text-gray-700"></label>
+            <input asp-for="Input.ConfirmPassword" type="password"
+                   class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <span asp-validation-for="Input.ConfirmPassword" class="text-red-600 text-sm"></span>
+        </div>
+
+        <button type="submit"
+                class="w-full bg-blue-600 text-white font-medium py-2 rounded-md hover:bg-blue-700 transition">
+            Crear cuenta
+        </button>
+    </form>
+
+    <p class="text-sm text-gray-500 mt-4 text-center">
+        ¿Ya tienes cuenta? <a asp-controller="Auth" asp-action="Login" class="text-blue-600 hover:underline">Inicia sesión</a>
+    </p>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

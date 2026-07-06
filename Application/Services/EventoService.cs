@@ -53,7 +53,7 @@ namespace Application.Services
                 TenantId = tenantId,
                 ClienteId = dto.ClienteId,
                 Tipo = dto.Tipo,
-                Fecha = dto.Fecha,
+                Fecha = DateTime.SpecifyKind(dto.Fecha, DateTimeKind.Utc),
                 Descripcion = dto.Descripcion,
                 Monto = dto.Monto,
                 Estado = string.IsNullOrWhiteSpace(dto.Estado) ? "Pendiente" : dto.Estado,
@@ -111,7 +111,7 @@ namespace Application.Services
 
             evento.ClienteId = dto.ClienteId;
             evento.Tipo = dto.Tipo;
-            evento.Fecha = dto.Fecha;
+            evento.Fecha = DateTime.SpecifyKind(dto.Fecha, DateTimeKind.Utc);
             evento.Descripcion = dto.Descripcion;
             evento.Monto = dto.Monto;
             evento.Estado = dto.Estado;

@@ -1,0 +1,40 @@
+@using Front.Models.Clientes
+@model ClienteFormViewModel
+
+<div asp-validation-summary="ModelOnly" class="bg-red-50 text-red-700 border border-red-200 rounded-md p-3 mb-4 text-sm"></div>
+
+<input type="hidden" asp-for="Id" />
+
+<div class="space-y-4">
+    <div>
+        <label asp-for="Nombre" class="block text-sm font-medium text-gray-700"></label>
+        <input asp-for="Nombre"
+               class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+               placeholder="Ej: Juan Pérez" />
+        <span asp-validation-for="Nombre" class="text-red-600 text-sm"></span>
+    </div>
+
+    <div>
+        <label asp-for="Telefono" class="block text-sm font-medium text-gray-700"></label>
+        <input asp-for="Telefono"
+               class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+               placeholder="Ej: 99887766" />
+        <span asp-validation-for="Telefono" class="text-red-600 text-sm"></span>
+    </div>
+
+    <div>
+        <label asp-for="Email" class="block text-sm font-medium text-gray-700"></label>
+        <input asp-for="Email" type="email"
+               class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+               placeholder="cliente@email.com" />
+        <span asp-validation-for="Email" class="text-red-600 text-sm"></span>
+    </div>
+
+    <div>
+        <label asp-for="Notas" class="block text-sm font-medium text-gray-700"></label>
+        <textarea asp-for="Notas" rows="3"
+                  class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Notas adicionales (opcional)"></textarea>
+        <span asp-validation-for="Notas" class="text-red-600 text-sm"></span>
+    </div>
+</div>

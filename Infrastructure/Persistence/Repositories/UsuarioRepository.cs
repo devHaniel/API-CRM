@@ -13,11 +13,11 @@ namespace Infrastructure.Persistence.Repositories
             _context = context;
         }
 
-        public async Task<Usuario?> GetByIdAsync(Guid id, CancellationToken ct = default)
-            => await _context.Usuarios.FirstOrDefaultAsync(u => u.Id == id, ct);
+        public async Task<Usuario?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken ct = default)
+            => await _context.Usuarios.FirstOrDefaultAsync(u => u.TenantId == tenantId && u.Id == id, ct);
 
-        public async Task<IEnumerable<Usuario>> GetAllAsync(CancellationToken ct = default)
-            => await _context.Usuarios.ToListAsync(ct);
+        public async Task<IEnumerable<Usuario>> GetAllAsync(Guid tenantId, CancellationToken ct = default)
+            => await _context.Usuarios.Where(u => u.TenantId == tenantId).ToListAsync(ct);
 
         public async Task AddAsync(Usuario usuario, CancellationToken ct = default)
             => await _context.Usuarios.AddAsync(usuario, ct);

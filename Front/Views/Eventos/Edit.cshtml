@@ -1,0 +1,28 @@
+@using Front.Models.Eventos
+@model EventoFormViewModel
+@{
+    ViewData["Title"] = "Editar evento";
+}
+
+<div class="max-w-lg mx-auto bg-white p-8 rounded-lg shadow">
+    <h1 class="text-2xl font-bold mb-6">Editar evento</h1>
+
+    <form asp-action="Edit" method="post">
+        @Html.AntiForgeryToken()
+
+        <partial name="_EventoForm" model="Model" />
+
+        <div class="flex justify-end gap-3 mt-6">
+            <a asp-action="Index" class="px-4 py-2 rounded-md border border-gray-300 text-gray-600 hover:bg-gray-50 transition">
+                Cancelar
+            </a>
+            <button type="submit" class="bg-blue-600 text-white px-5 py-2 rounded-md font-medium hover:bg-blue-700 transition">
+                Guardar cambios
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -6,7 +6,7 @@
 # Creedenciales temporales
 crdenciales.txt
 
-
+node_modules/
 
 *.Development.json
 
