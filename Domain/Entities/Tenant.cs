@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Domain;
+namespace Domain.Entities;
 
 public partial class Tenant
 {
@@ -11,15 +11,17 @@ public partial class Tenant
 
     public string Rubro { get; set; } = null!;
 
-    public string PlanActivo { get; set; } = null!;
-
     public DateTime FechaCreacion { get; set; }
 
     public bool Activo { get; set; }
 
+    public Guid? PlanId { get; set; }
+
     public virtual ICollection<Cliente> Clientes { get; set; } = new List<Cliente>();
 
     public virtual ICollection<Evento> Eventos { get; set; } = new List<Evento>();
+
+    public virtual Plane? Plan { get; set; }
 
     public virtual ICollection<PlantillasMensaje> PlantillasMensajes { get; set; } = new List<PlantillasMensaje>();
 

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Application.Interfaces;
 using Domain.Interfaces;
 using Hangfire;
+using Infrastructure.Configuration;
 using Infrastructure.Mensajeria;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Repositories;
@@ -32,11 +33,15 @@ namespace Infrastructure
         services.AddScoped<IPlantillasMensajeRepository, PlantillasMensajeRepository>();
         services.AddScoped<IUsuarioRepository, UsuarioRepository>();
         services.AddScoped<ITenantRepository, TenantRepository>();
-        services.AddScoped<IMensajeService, TwilioMensajeService>();
+        services.AddScoped<IWhatsAppService, TwilioMensajeService>();
+        services.AddScoped<IPlanRepository, PlanRepository>();
 
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<IDashboardService, DashboardService>();
+        services.Configure<GmailSettings>(
+            configuration.GetSection("Gmail"));
+        services.AddScoped<IEmailService, GmailService>();
 
         return services;
     }

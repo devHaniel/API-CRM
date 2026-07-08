@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using Domain.Interfaces;
 
-namespace Domain;
+namespace Domain.Entities;
 
-public partial class PlantillasMensaje : ITenantOwned
+public partial class PlantillasMensaje
 {
     public Guid Id { get; set; }
 

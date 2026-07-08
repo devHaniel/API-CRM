@@ -1,30 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
-using Domain.Interfaces;
 
-namespace Domain;
+namespace Domain.Entities;
 
-public partial class Evento : ITenantOwned
+public partial class Evento
 {
     public Guid Id { get; set; }
 
     public Guid TenantId { get; set; }
 
     public Guid ClienteId { get; set; }
-    // Tipo solo puede tener 2 valores:
-    // Cita -> Una cita agendada : Monto puede ser null
-    // Pago -> Cuota o cobro pendiente : Monto es obligatorio
-    
+
     public string Tipo { get; set; } = null!;
 
     public DateTime Fecha { get; set; }
-    public string? Descripcion { get; set; }
 
     public decimal? Monto { get; set; }
 
     public string Estado { get; set; } = null!;
 
     public DateTime FechaCreacion { get; set; }
+
+    public string? Descripcion { get; set; }
 
     public virtual Cliente Cliente { get; set; } = null!;
 

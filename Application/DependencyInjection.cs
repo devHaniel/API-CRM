@@ -17,7 +17,7 @@ namespace Application
             services.AddScoped<IRecordatorioService, RecordatorioService>();
             services.AddScoped<IPlantillasMensajeService, PlantillasMensajeService>();
             services.AddScoped<IAuthService, AuthService>();
-
+            services.AddScoped<IPlanService, PlanService>();
             return services;
         }
     }

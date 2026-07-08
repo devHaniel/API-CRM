@@ -1,6 +1,7 @@
 using Application.DTOs.Auth;
 using Application.Interfaces;
 using Domain;
+using Domain.Entities;
 using Domain.Interfaces;
 
 namespace Application.Services
@@ -12,19 +13,25 @@ namespace Application.Services
         private readonly IPasswordHasher _passwordHasher;
         private readonly IJwtTokenGenerator _jwtTokenGenerator;
         private readonly ICurrentTenantService _tenantService;
+        private readonly IEmailService _emailService;
+        private readonly IPlanService _planService;
 
         public AuthService(
             IUsuarioRepository usuarioRepository,
             ITenantRepository tenantRepository,
             IPasswordHasher passwordHasher,
             IJwtTokenGenerator jwtTokenGenerator,
-            ICurrentTenantService tenantService)
+            ICurrentTenantService tenantService,
+            IPlanService planService,
+            IEmailService emailService)
         {
             _usuarioRepository = usuarioRepository;
             _tenantRepository = tenantRepository;
             _passwordHasher = passwordHasher;
             _jwtTokenGenerator = jwtTokenGenerator;
             _tenantService = tenantService;
+            _planService = planService;
+            _emailService = emailService;
         }
 
         public async Task<AuthResponseDto> RegisterTenantAsync(RegisterTenantDto dto, CancellationToken ct = default)
@@ -32,12 +39,17 @@ namespace Application.Services
             if (await _usuarioRepository.ExisteEmailAsync(dto.Email, ct))
                 throw new InvalidOperationException("Ya existe una cuenta con ese email.");
 
+            var planId = await _planService.ObtenerTodosAsync();
+
+            if(planId.Items.Count() == 0)
+                throw new InvalidOperationException("No hay planes disponibles para asignar al nuevo tenant.");
+
             var tenant = new Tenant
             {
                 Id = Guid.NewGuid(),
                 Nombre = dto.NombreNegocio,
                 Rubro = dto.Rubro,
-                PlanActivo = "Free",
+                PlanId = planId.Items.First().Id,
                 FechaCreacion = DateTime.UtcNow,
                 Activo = true
             };
@@ -57,6 +69,11 @@ namespace Application.Services
             await _tenantRepository.SaveChangesAsync(ct);
 
             var token = _jwtTokenGenerator.GenerarToken(usuario);
+
+            await _emailService.SendWelcomeEmailAsync(
+                usuario.Email,
+                usuario.Email.Split('@')[0],
+                ct);
 
             return new AuthResponseDto(token, usuario.Email, usuario.Rol, tenant.Id, tenant.Nombre);
         }

@@ -1,6 +1,7 @@
 using System.Linq;
 using Application.DTOs.Evento;
 using Domain;
+using Domain.Entities;
 using Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 

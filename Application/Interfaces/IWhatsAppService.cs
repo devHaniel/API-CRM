@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Application.Interfaces
 {
-    public interface IMensajeService
+    public interface IWhatsAppService
     {
         Task<bool> EnviarWhatsAppAsync(string telefono, string mensaje, CancellationToken ct = default);
     }

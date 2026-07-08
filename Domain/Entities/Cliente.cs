@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using Domain.Interfaces;
 
-namespace Domain;
+namespace Domain.Entities;
 
-public partial class Cliente : ITenantOwned
+public partial class Cliente
 {
     public Guid Id { get; set; }
 
@@ -25,9 +24,4 @@ public partial class Cliente : ITenantOwned
     public virtual ICollection<Evento> Eventos { get; set; } = new List<Evento>();
 
     public virtual Tenant Tenant { get; set; } = null!;
-
-    // public static implicit operator Cliente(Cliente v)
-    // {
-    //     throw new NotImplementedException();
-    // }
 }

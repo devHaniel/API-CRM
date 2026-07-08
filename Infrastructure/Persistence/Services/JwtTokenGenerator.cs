@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Application.Interfaces;
 using Domain;
+using Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 

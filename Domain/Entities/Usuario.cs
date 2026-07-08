@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using Domain.Interfaces;
 
-namespace Domain;
+namespace Domain.Entities;
 
-public partial class Usuario : IEntity
+public partial class Usuario
 {
     public Guid Id { get; set; }
 

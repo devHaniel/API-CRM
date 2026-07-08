@@ -2,6 +2,7 @@ using Application.DTOs.Common;
 using Application.DTOs.Recordatorio;
 using Application.Interfaces;
 using Domain;
+using Domain.Entities;
 using Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 
@@ -10,26 +11,34 @@ namespace Application.Services
     public class RecordatorioService : IRecordatorioService
     {
         private readonly IRecordatorioRepository _recordatorioRepository;
+        private readonly IPlanService _planService;
         private readonly IEventoRepository _eventoRepository;
-        private readonly IMensajeService _mensajeService;
+        private readonly IWhatsAppService _mensajeService;
         private readonly ILogger<RecordatorioService> _logger;
 
         public RecordatorioService(
             IRecordatorioRepository recordatorioRepository,
             IEventoRepository eventoRepository,
-            IMensajeService mensajeService,
-            ILogger<RecordatorioService> logger)
+            IWhatsAppService mensajeService,
+            ILogger<RecordatorioService> logger,
+            IPlanService planService)
         {
             _recordatorioRepository = recordatorioRepository;
             _eventoRepository = eventoRepository;
             _mensajeService = mensajeService;
             _logger = logger;
+            _planService = planService;
         }
 
         public async Task<Guid> CrearAsync(Guid tenantId, CrearRecordatorioDto dto, CancellationToken ct = default)
         {
             _logger.LogInformation("Iniciando creación de recordatorio para el Tenant {TenantId}. Evento: {EventoId}.", tenantId, dto.EventoId);
 
+            if(!await _planService.PuedeEnviarMasRecordatoriosAsync(tenantId, ct))
+            {
+                _logger.LogWarning("El Tenant {TenantId} ha alcanzado el límite de recordatorios permitidos por su plan.", tenantId);
+                throw new InvalidOperationException("El tenant ha alcanzado el límite de recordatorios permitidos por su plan.");
+            }
             try
             {
                 await ValidarEventoDelTenantAsync(tenantId, dto.EventoId, ct);

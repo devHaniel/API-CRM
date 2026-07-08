@@ -3,6 +3,7 @@ using Application.DTOs.Common;
 using Application.DTOs.Evento;
 using Application.Interfaces;
 using Domain;
+using Domain.Entities;
 using Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 

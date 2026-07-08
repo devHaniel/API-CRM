@@ -5,7 +5,7 @@ using Twilio.Rest.Api.V2010.Account;
 
 namespace Infrastructure.Mensajeria
 {
-    public class TwilioMensajeService : IMensajeService
+    public class TwilioMensajeService : IWhatsAppService
     {
         private readonly IConfiguration _configuration;
 
