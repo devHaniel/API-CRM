@@ -91,7 +91,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Dashboard}/{action=Index}/{id?}");
 
 // Dashboard de Hangfire — protégelo, ver punto 3
 // app.UseHangfireDashboard("/hangfire", new DashboardOptions

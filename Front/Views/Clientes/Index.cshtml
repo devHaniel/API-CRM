@@ -4,63 +4,102 @@
     ViewData["Title"] = "Clientes";
 }
 
-<div class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl font-bold text-gray-900">Clientes</h1>
-    <a asp-action="Create"
-       class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition">
-        + Nuevo cliente
-    </a>
-</div>
+<div class="max-w-6xl mx-auto px-4 py-8">
 
-<div class="bg-white rounded-lg shadow overflow-hidden">
-    <table class="min-w-full text-sm">
-        <thead>
-            <tr class="text-left text-gray-500 border-b bg-gray-50">
-                <th class="p-3">Nombre</th>
-                <th class="p-3">Teléfono</th>
-                <th class="p-3">Email</th>
-                <th class="p-3 text-right">Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (!Model.Clientes.Any())
-            {
-                <tr>
-                    <td colspan="4" class="p-6 text-center text-gray-400">
-                        No hay clientes registrados todavía.
-                    </td>
-                </tr>
-            }
-            @foreach (var cliente in Model.Clientes)
-            {
-                <tr class="border-b last:border-0 hover:bg-gray-50">
-                    <td class="p-3 font-medium text-gray-900">@cliente.Nombre</td>
-                    <td class="p-3 text-gray-600">@cliente.Telefono</td>
-                    <td class="p-3 text-gray-600">@cliente.Email</td>
-                    <td class="p-3 text-right space-x-2">
-                        <a asp-action="Edit" asp-route-id="@cliente.Id"
-                           class="text-blue-600 hover:underline">Editar</a>
-                        <form asp-action="Delete" asp-route-id="@cliente.Id" method="post" class="inline"
-                              onsubmit="return confirm('¿Eliminar este cliente?');">
-                            @Html.AntiForgeryToken()
-                            <button type="submit" class="text-red-600 hover:underline">Eliminar</button>
-                        </form>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-</div>
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Clientes</h1>
+            <p class="text-sm text-gray-500 mt-1">@Model.TotalCount cliente(s) en total</p>
+        </div>
+        <a asp-action="Create"
+           class="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Nuevo cliente
+        </a>
+    </div>
 
-@if (Model.TotalPages > 1)
-{
-    <div class="flex justify-center items-center gap-2 mt-4">
-        @for (int i = 1; i <= Model.TotalPages; i++)
+    <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+                <thead>
+                    <tr class="text-left text-gray-500 border-b border-gray-200 bg-gray-50">
+                        <th class="p-3 font-semibold text-xs uppercase tracking-wider">Nombre</th>
+                        <th class="p-3 font-semibold text-xs uppercase tracking-wider">Teléfono</th>
+                        <th class="p-3 font-semibold text-xs uppercase tracking-wider">Email</th>
+                        <th class="p-3 font-semibold text-xs uppercase tracking-wider text-right">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    @foreach (var cliente in Model.Clientes)
+                    {
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="p-3 whitespace-nowrap">
+                                <a asp-action="Details" asp-route-id="@cliente.Id"
+                                   class="text-blue-600 hover:text-blue-800 font-medium hover:underline">
+                                    @cliente.Nombre
+                                </a>
+                            </td>
+                            <td class="p-3 text-gray-600 whitespace-nowrap">@cliente.Telefono</td>
+                            <td class="p-3 text-gray-600 whitespace-nowrap">@cliente.Email</td>
+                            <td class="p-3 text-right whitespace-nowrap">
+                                <div class="flex justify-end items-center gap-3">
+                                    <a asp-action="Edit" asp-route-id="@cliente.Id"
+                                       class="text-blue-600 hover:text-blue-800 font-medium text-sm hover:underline">
+                                        Editar
+                                    </a>
+                                    <form asp-action="Delete" asp-route-id="@cliente.Id" method="post" class="inline"
+                                          onsubmit="return confirm('¿Eliminar este cliente?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="text-red-600 hover:text-red-800 font-medium text-sm hover:underline">
+                                            Eliminar
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (!Model.Clientes.Any())
         {
-            <a asp-action="Index" asp-route-pageNumber="@i" asp-route-pageSize="@Model.PageSize"
-               class="px-3 py-1 rounded-md text-sm @(i == Model.PageNumber ? "bg-blue-600 text-white" : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50")">
-                @i
-            </a>
+            <div class="text-center py-12">
+                <p class="text-sm text-gray-500">No hay clientes registrados todavía.</p>
+            </div>
+        }
+
+        @if (Model.TotalPages > 1)
+        {
+            <div class="flex items-center justify-between border-t border-gray-200 px-4 py-3 bg-gray-50">
+                <p class="text-sm text-gray-500">
+                    Página <span class="font-medium text-gray-700">@Model.PageNumber</span> de
+                    <span class="font-medium text-gray-700">@Model.TotalPages</span>
+                </p>
+
+                <div class="flex items-center gap-1">
+                    <a asp-action="Index" asp-route-pageNumber="@(Model.PageNumber - 1)" asp-route-pageSize="@Model.PageSize"
+                       class="@(Model.PageNumber <= 1 ? "pointer-events-none opacity-40" : "hover:bg-gray-100") px-3 py-1.5 rounded-md border border-gray-300 text-sm text-gray-600 transition-colors">
+                        Anterior
+                    </a>
+
+                    @for (int i = 1; i <= Model.TotalPages; i++)
+                    {
+                        <a asp-action="Index" asp-route-pageNumber="@i" asp-route-pageSize="@Model.PageSize"
+                           class="@(i == Model.PageNumber ? "bg-blue-600 text-white border-blue-600" : "border-gray-300 text-gray-600 hover:bg-gray-100") px-3 py-1.5 rounded-md border text-sm transition-colors">
+                            @i
+                        </a>
+                    }
+
+                    <a asp-action="Index" asp-route-pageNumber="@(Model.PageNumber + 1)" asp-route-pageSize="@Model.PageSize"
+                       class="@(Model.PageNumber >= Model.TotalPages ? "pointer-events-none opacity-40" : "hover:bg-gray-100") px-3 py-1.5 rounded-md border border-gray-300 text-sm text-gray-600 transition-colors">
+                        Siguiente
+                    </a>
+                </div>
+            </div>
         }
     </div>
-}
+
+</div>

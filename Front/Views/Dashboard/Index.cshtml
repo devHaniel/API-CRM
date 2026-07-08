@@ -5,183 +5,178 @@
     ViewData["Title"] = "Dashboard";
 }
 
-<div class="mb-8">
-    <h1 class="text-3xl font-bold text-gray-900">
-        Dashboard
-    </h1>
-    <p class="text-gray-500 mt-2">
-        Resumen general de la actividad de tu empresa.
-    </p>
-</div>
+<div class="max-w-6xl mx-auto px-4 py-8">
 
-<!-- Tarjetas -->
-<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
-
-    <div class="bg-white rounded-xl shadow p-6">
-        <p class="text-sm text-gray-500">Clientes Activos</p>
-        <h2 class="text-3xl font-bold text-blue-600 mt-2">
-            @Model.TotalClientes
-        </h2>
+    <!-- Encabezado -->
+    <div class="mb-8">
+        <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
+        <p class="text-sm text-gray-500 mt-1">Resumen general de la actividad de tu empresa.</p>
     </div>
 
-    <div class="bg-white rounded-xl shadow p-6">
-        <p class="text-sm text-gray-500">Eventos</p>
-        <h2 class="text-3xl font-bold text-indigo-600 mt-2">
-            @Model.TotalEventos
-        </h2>
-    </div>
+    <!-- Tarjetas principales -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
 
-    <div class="bg-white rounded-xl shadow p-6">
-        <p class="text-sm text-gray-500">Ingresos</p>
-        <h2 class="text-3xl font-bold text-green-600 mt-2">
-            @Model.IngresosTotales.ToString("C")
-        </h2>
-    </div>
-
-    <div class="bg-white rounded-xl shadow p-6">
-        <p class="text-sm text-gray-500">Eventos Completados</p>
-        <h2 class="text-3xl font-bold text-emerald-600 mt-2">
-            @Model.EventosCompletados
-        </h2>
-    </div>
-
-</div>
-
-<!-- Segunda fila -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-
-    <div class="bg-yellow-50 border border-yellow-100 rounded-xl p-6">
-        <p class="text-sm text-yellow-700">Eventos Pendientes</p>
-        <h2 class="text-3xl font-bold text-yellow-800 mt-2">
-            @Model.EventosPendientes
-        </h2>
-    </div>
-
-    <div class="bg-green-50 border border-green-100 rounded-xl p-6">
-        <p class="text-sm text-green-700">Recordatorios Enviados</p>
-        <h2 class="text-3xl font-bold text-green-800 mt-2">
-            @Model.RecordatoriosEnviados
-        </h2>
-    </div>
-
-    <div class="bg-red-50 border border-red-100 rounded-xl p-6">
-        <p class="text-sm text-red-700">Recordatorios Fallidos</p>
-        <h2 class="text-3xl font-bold text-red-800 mt-2">
-            @Model.RecordatoriosFallidos
-        </h2>
-    </div>
-
-</div>
-
-<!-- Recordatorios pendientes -->
-<div class="bg-white rounded-xl shadow p-6 mb-8">
-
-    <div class="flex justify-between items-center">
-
-        <div>
-            <h2 class="text-lg font-semibold text-gray-900">
-                Recordatorios Pendientes
-            </h2>
-
-            <p class="text-gray-500 text-sm mt-1">
-                Aún no enviados.
-            </p>
+        <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-5">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-1.13a4 4 0 10-4-4 4 4 0 004 4zm6 0a4 4 0 10-4-4" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Clientes activos</p>
+                    <p class="text-2xl font-bold text-gray-900 mt-0.5">@Model.TotalClientes</p>
+                </div>
+            </div>
         </div>
 
-        <span class="bg-yellow-100 text-yellow-700 px-4 py-2 rounded-full font-semibold">
+        <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-5">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Eventos</p>
+                    <p class="text-2xl font-bold text-gray-900 mt-0.5">@Model.TotalEventos</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-5">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V6m0 10v2m9-6a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Ingresos</p>
+                    <p class="text-2xl font-bold text-gray-900 mt-0.5">@Model.IngresosTotales.ToString("C")</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-5">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Eventos completados</p>
+                    <p class="text-2xl font-bold text-gray-900 mt-0.5">@Model.EventosCompletados</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Atención requerida -->
+    <div class="bg-white rounded-lg border border-gray-200 shadow-sm mb-8 overflow-hidden">
+        <div class="px-5 py-3 border-b border-gray-100">
+            <h2 class="text-sm font-semibold text-gray-700">Atención requerida</h2>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-gray-100">
+
+            <div class="p-5 flex items-center justify-between">
+                <span class="text-sm text-gray-600">Eventos pendientes</span>
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">
+                    <span class="w-1.5 h-1.5 rounded-full bg-yellow-500"></span>
+                    @Model.EventosPendientes
+                </span>
+            </div>
+
+            <div class="p-5 flex items-center justify-between">
+                <span class="text-sm text-gray-600">Recordatorios enviados</span>
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                    <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                    @Model.RecordatoriosEnviados
+                </span>
+            </div>
+
+            <div class="p-5 flex items-center justify-between">
+                <span class="text-sm text-gray-600">Recordatorios fallidos</span>
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
+                    <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                    @Model.RecordatoriosFallidos
+                </span>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Recordatorios pendientes -->
+    <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-5 mb-8 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-yellow-50 flex items-center justify-center shrink-0">
+                <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <div>
+                <h2 class="text-sm font-semibold text-gray-900">Recordatorios pendientes</h2>
+                <p class="text-gray-500 text-xs mt-0.5">Aún no enviados.</p>
+            </div>
+        </div>
+        <span class="bg-yellow-100 text-yellow-700 px-3 py-1.5 rounded-full text-sm font-semibold">
             @Model.RecordatoriosPendientes
         </span>
-
     </div>
 
-</div>
+    <!-- Últimos eventos -->
+    <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
 
-<!-- Últimos eventos -->
-<div class="bg-white rounded-xl shadow overflow-hidden">
+        <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+            <h2 class="text-sm font-semibold text-gray-900">Últimos eventos</h2>
+            <span class="text-xs text-gray-400">@Model.UltimosEventos.Count() registro(s)</span>
+        </div>
 
-    <div class="p-6 border-b">
-        <h2 class="text-lg font-semibold text-gray-900">
-            Últimos Eventos
-        </h2>
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+                <thead class="bg-gray-50">
+                    <tr class="text-left text-gray-500 border-b border-gray-200">
+                        <th class="p-3 font-semibold text-xs uppercase tracking-wider">Cliente</th>
+                        <th class="p-3 font-semibold text-xs uppercase tracking-wider">Tipo</th>
+                        <th class="p-3 font-semibold text-xs uppercase tracking-wider">Fecha</th>
+                        <th class="p-3 font-semibold text-xs uppercase tracking-wider">Monto</th>
+                        <th class="p-3 font-semibold text-xs uppercase tracking-wider">Estado</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+
+                @if (Model.UltimosEventos.Any())
+                {
+                    foreach (var evento in Model.UltimosEventos)
+                    {
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="p-3 font-medium text-gray-900 whitespace-nowrap">@evento.ClienteNombre</td>
+                            <td class="p-3 text-gray-600 whitespace-nowrap">@evento.Tipo</td>
+                            <td class="p-3 text-gray-600 whitespace-nowrap">@evento.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td class="p-3 font-semibold text-gray-900 whitespace-nowrap">@evento.Monto.ToString("C")</td>
+                            <td class="p-3 whitespace-nowrap">
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium @(evento.Estado == "Completado" ? "bg-green-100 text-green-700" : evento.Estado == "Pendiente" ? "bg-yellow-100 text-yellow-700" : "bg-gray-100 text-gray-700")">
+                                    <span class="w-1.5 h-1.5 rounded-full @(evento.Estado == "Completado" ? "bg-green-500" : evento.Estado == "Pendiente" ? "bg-yellow-500" : "bg-gray-400")"></span>
+                                    @evento.Estado
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5" class="text-center py-12 text-gray-400">
+                            No existen eventos registrados.
+                        </td>
+                    </tr>
+                }
+
+                </tbody>
+            </table>
+        </div>
     </div>
-
-    <table class="min-w-full text-sm">
-
-        <thead class="bg-gray-50 text-gray-500">
-
-            <tr>
-
-                <th class="text-left p-4">Cliente</th>
-
-                <th class="text-left p-4">Tipo</th>
-
-                <th class="text-left p-4">Fecha</th>
-
-                <th class="text-left p-4">Monto</th>
-
-                <th class="text-left p-4">Estado</th>
-
-            </tr>
-
-        </thead>
-
-        <tbody>
-
-        @if (Model.UltimosEventos.Any())
-        {
-            foreach (var evento in Model.UltimosEventos)
-            {
-                <tr class="border-t hover:bg-gray-50">
-
-                    <td class="p-4 font-medium text-gray-900">
-                        @evento.ClienteNombre
-                    </td>
-
-                    <td class="p-4">
-                        @evento.Tipo
-                    </td>
-
-                    <td class="p-4 text-gray-600">
-                        @evento.Fecha.ToString("dd/MM/yyyy HH:mm")
-                    </td>
-
-                    <td class="p-4 font-semibold text-green-600">
-                        @evento.Monto.ToString("C")
-                    </td>
-
-                    <td class="p-4">
-
-                        <span class="px-3 py-1 rounded-full text-xs
-                            @(evento.Estado == "Completado"
-                                ? "bg-green-100 text-green-700"
-                                : evento.Estado == "Pendiente"
-                                    ? "bg-yellow-100 text-yellow-700"
-                                    : "bg-gray-100 text-gray-700")">
-
-                            @evento.Estado
-
-                        </span>
-
-                    </td>
-
-                </tr>
-            }
-        }
-        else
-        {
-            <tr>
-
-                <td colspan="5" class="text-center py-10 text-gray-500">
-
-                    No existen eventos registrados.
-
-                </td>
-
-            </tr>
-        }
-
-        </tbody>
-
-    </table>
 
 </div>

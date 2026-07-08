@@ -1,5 +1,6 @@
 using Application.DTOs.Cliente;
 using Application.DTOs.Common;
+using Application.DTOs.Evento;
 using Application.Interfaces;
 using Domain;
 using Domain.Interfaces;
@@ -107,5 +108,6 @@ namespace Application.Services
 
         private static ClienteDto MapToDto(Cliente c)
             => new(c.Id, c.Nombre, c.Telefono, c.Email, c.Notas, c.FechaCreacion, c.Activo);
+
     }
 }

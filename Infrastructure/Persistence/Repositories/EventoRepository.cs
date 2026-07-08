@@ -1,3 +1,5 @@
+using System.Linq;
+using Application.DTOs.Evento;
 using Domain;
 using Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +19,12 @@ namespace Infrastructure.Persistence.Repositories
             => await _context.Eventos
                 .Include(e => e.Cliente)
                 .FirstOrDefaultAsync(e => e.Id == id && e.TenantId == tenantId, ct);
+
+        public async Task<List<Evento>?> GetByIdClienteAsync(Guid id, Guid tenantId, CancellationToken ct = default)
+            => await _context.Eventos
+                .Include(e => e.Cliente)
+                .Where(e => e.ClienteId == id && e.TenantId == tenantId)
+                .ToListAsync();
 
         public async Task<IEnumerable<Evento>> GetAllByTenantAsync(Guid tenantId, CancellationToken ct = default)
             => await _context.Eventos

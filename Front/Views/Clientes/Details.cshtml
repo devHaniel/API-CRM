@@ -1,0 +1,112 @@
+@using Front.Models.Clientes
+@using Application.DTOs.Evento
+@model ClienteDetailsViewModel
+
+@{
+    ViewData["Title"] = "Detalles del Cliente";
+}
+
+<h1 class="text-2xl font-semibold text-gray-800 mb-6">Detalles del Cliente</h1>
+
+<input type="hidden" asp-for="Id" />
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+    <!-- Columna izquierda: Formulario -->
+    <div class="bg-white rounded-lg border border-gray-200 p-6 space-y-4">
+        <h2 class="text-lg font-medium text-gray-800 mb-2">Información del Cliente</h2>
+
+        <div>
+            <label asp-for="Nombre" class="block text-sm font-medium text-gray-700"></label>
+            <input asp-for="Nombre"
+                   class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   placeholder="Ej: Juan Pérez"
+                   disabled />
+            <span asp-validation-for="Nombre" class="text-red-600 text-sm"></span>
+        </div>
+
+        <div>
+            <label asp-for="Telefono" class="block text-sm font-medium text-gray-700"></label>
+            <input asp-for="Telefono"
+                   class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   placeholder="Ej: 99887766"
+                   disabled />
+            <span asp-validation-for="Telefono" class="text-red-600 text-sm"></span>
+        </div>
+
+        <div>
+            <label asp-for="Email" class="block text-sm font-medium text-gray-700"></label>
+            <input asp-for="Email" type="email"
+                   class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   placeholder="cliente@email.com"
+                   disabled />
+            <span asp-validation-for="Email" class="text-red-600 text-sm"></span>
+        </div>
+
+        <div>
+            <label asp-for="Notas" class="block text-sm font-medium text-gray-700"></label>
+            <textarea asp-for="Notas" rows="3"
+                      class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Notas adicionales (opcional)"
+                      disabled></textarea>
+            <span asp-validation-for="Notas" class="text-red-600 text-sm"></span>
+        </div>
+    </div>
+
+    <!-- Columna derecha: Historial de eventos -->
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <h2 class="text-lg font-medium text-gray-800 mb-4">Historial de Eventos</h2>
+
+        @if (Model.Eventos is not null && Model.Eventos.Any())
+        {
+            <ul class="space-y-4 max-h-[500px] overflow-y-auto pr-1">
+                @foreach (var evento in Model.Eventos.OrderByDescending(e => e.Fecha))
+                {
+                    <li class="border border-gray-200 rounded-md p-4 relative">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-sm font-semibold text-gray-800">@evento.Tipo</span>
+
+                            @{
+                                var badgeClass = evento.Estado?.ToLower() switch
+                                {
+                                    "completado" => "bg-green-100 text-green-700",
+                                    "pendiente" => "bg-yellow-100 text-yellow-700",
+                                    "cancelado" => "bg-red-100 text-red-700",
+                                    _ => "bg-gray-100 text-gray-700"
+                                };
+                            }
+                            <span class="text-xs font-medium px-2 py-1 rounded-full @badgeClass">
+                                @evento.Estado
+                            </span>
+                        </div>
+
+                        <p class="text-xs text-gray-500 mb-2">
+                            @evento.Fecha.ToString("dd/MM/yyyy HH:mm")
+                        </p>
+
+                        @if (!string.IsNullOrWhiteSpace(evento.Descripcion))
+                        {
+                            <p class="text-sm text-gray-700 mb-2">@evento.Descripcion</p>
+                        }
+
+                        @if (evento.Monto.HasValue)
+                        {
+                            <p class="text-sm font-medium text-gray-800">
+                                Monto: @evento.Monto.Value.ToString("C")
+                            </p>
+                        }
+
+                        <p class="text-xs text-gray-400 mt-2">
+                            Creado: @evento.FechaCreacion.ToString("dd/MM/yyyy HH:mm")
+                        </p>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p class="text-sm text-gray-500">Este cliente no tiene eventos registrados.</p>
+        }
+    </div>
+
+</div>

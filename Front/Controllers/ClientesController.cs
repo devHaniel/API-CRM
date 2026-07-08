@@ -18,11 +18,13 @@ namespace Front.Controllers
     {
         private readonly IClienteService _clienteService;
         private readonly ICurrentTenantService _currentTenantService;
+        private readonly IEventoService _eventoService;
 
-        public ClientesController(IClienteService clienteService, ICurrentTenantService currentTenantService)
+        public ClientesController(IClienteService clienteService, ICurrentTenantService currentTenantService, IEventoService eventoService)
         {
             _clienteService = clienteService;
             _currentTenantService = currentTenantService;
+            _eventoService = eventoService;
         }
 
         public async Task<IActionResult> Index(int pageNumber = 1, int pageSize = 10, CancellationToken ct = default)
@@ -45,6 +47,29 @@ namespace Front.Controllers
                 PageSize = resultado.PageSize,
                 TotalCount = resultado.TotalCount,
                 TotalPages = resultado.TotalPages
+            };
+
+            return View(model);
+        }
+
+        public async Task<IActionResult> Details(Guid id, CancellationToken ct)
+        {
+            var tenantId = _currentTenantService.TenantId;
+
+            var cliente = await _clienteService.ObtenerPorIdAsync(tenantId, id, ct);
+            if (cliente is null)
+                return NotFound();
+
+            var eventos = await _eventoService.ObtenerPorClienteIdAsync(tenantId, id);
+
+            var model = new ClienteDetailsViewModel
+            {
+                Id = cliente.Id,
+                Nombre = cliente.Nombre,
+                Telefono = cliente.Telefono ?? string.Empty,
+                Email = cliente.Email ?? string.Empty,
+                Notas = cliente.Notas,
+                Eventos = eventos
             };
 
             return View(model);

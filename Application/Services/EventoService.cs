@@ -147,5 +147,14 @@ namespace Application.Services
                 e.Monto,
                 e.Estado,
                 e.FechaCreacion);
+
+        public async Task<List<EventoDto>?> ObtenerPorClienteIdAsync(Guid tenantId, Guid clientId, CancellationToken ct = default)
+        {
+            var cliente = await _clienteRepository.GetByIdAsync(clientId, tenantId, ct);
+
+            var eventos = await _eventoRepository.GetByIdClienteAsync(clientId, tenantId, ct);
+
+            return eventos.Select(MapToDto).ToList();
+        }
     }
 }

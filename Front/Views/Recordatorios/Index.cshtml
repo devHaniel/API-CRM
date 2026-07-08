@@ -3,54 +3,112 @@
 @model PagedResultDto<RecordatorioDto>
 @{
     ViewData["Title"] = "Recordatorios";
+    var pageNumber = Model.PageNumber;
+    var totalPages = Model.TotalPages;
 }
 
-<div class="flex justify-between items-center mb-6">
-    <div>
-        <h1 class="text-2xl font-bold text-gray-900">Recordatorios</h1>
-        <p class="text-sm text-gray-500 mt-1">@Model.TotalCount recordatorio(s) en total</p>
+<div class="max-w-6xl mx-auto px-4 py-8">
+
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Recordatorios</h1>
+            <p class="text-sm text-gray-500 mt-1">@Model.TotalCount recordatorio(s) en total</p>
+        </div>
+        <a asp-action="Create"
+           class="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Nuevo recordatorio
+        </a>
     </div>
-    <a asp-action="Create" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition">
-        + Nuevo recordatorio
-    </a>
-</div>
 
-<div class="bg-white rounded-lg shadow overflow-hidden">
-    <table class="min-w-full text-sm">
-        <thead>
-            <tr class="text-left text-gray-500 border-b bg-gray-50">
-                <th class="p-3">Cliente</th>
-                <th class="p-3">Canal</th>
-                <th class="p-3">Programado</th>
-                <th class="p-3">Enviado</th>
-                <th class="p-3">Estado</th>
-                <th class="p-3 text-right">Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var r in Model.Items)
-            {
-                <tr class="border-b last:border-0 hover:bg-gray-50">
-                    <td class="p-3 font-medium text-gray-900">@r.ClienteNombre</td>
-                    <td class="p-3">@r.CanalEnvio</td>
-                    <td class="p-3 text-gray-600">@r.FechaProgramada.ToString("dd/MM/yyyy HH:mm")</td>
-                    <td class="p-3 text-gray-600">@(r.FechaEnvio?.ToString("dd/MM/yyyy HH:mm") ?? "-")</td>
-                    <td class="p-3">
-                        <span class="px-2 py-1 rounded-full text-xs @(r.Estado == "Enviado" ? "bg-green-50 text-green-700" : r.Estado == "Fallido" ? "bg-red-50 text-red-700" : "bg-gray-100 text-gray-700")">
-                            @r.Estado
-                        </span>
-                    </td>
-                    <td class="p-3 text-right">
-                    <a asp-action="Edit" asp-route-id="@r.Id" class="text-blue-600 hover:underline">Editar</a>
+    <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+                <thead>
+                    <tr class="text-left text-gray-500 border-b border-gray-200 bg-gray-50">
+                        <th class="p-3 font-semibold text-xs uppercase tracking-wider">Cliente</th>
+                        <th class="p-3 font-semibold text-xs uppercase tracking-wider">Canal</th>
+                        <th class="p-3 font-semibold text-xs uppercase tracking-wider">Programado</th>
+                        <th class="p-3 font-semibold text-xs uppercase tracking-wider">Enviado</th>
+                        <th class="p-3 font-semibold text-xs uppercase tracking-wider">Estado</th>
+                        <th class="p-3 font-semibold text-xs uppercase tracking-wider text-right">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    @foreach (var r in Model.Items)
+                    {
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="p-3 font-medium text-gray-900 whitespace-nowrap">@r.ClienteNombre</td>
+                            <td class="p-3 text-gray-600 whitespace-nowrap">@r.CanalEnvio</td>
+                            <td class="p-3 text-gray-600 whitespace-nowrap">@r.FechaProgramada.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td class="p-3 text-gray-600 whitespace-nowrap">@(r.FechaEnvio?.ToString("dd/MM/yyyy HH:mm") ?? "-")</td>
+                            <td class="p-3 whitespace-nowrap">
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium @(r.Estado == "Enviado" ? "bg-green-100 text-green-700" : r.Estado == "Fallido" ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-700")">
+                                    <span class="w-1.5 h-1.5 rounded-full @(r.Estado == "Enviado" ? "bg-green-500" : r.Estado == "Fallido" ? "bg-red-500" : "bg-gray-400")"></span>
+                                    @r.Estado
+                                </span>
+                            </td>
+                            <td class="p-3 text-right whitespace-nowrap">
+                                <div class="flex justify-end items-center gap-3">
+                                    <a asp-action="Edit" asp-route-id="@r.Id" class="text-blue-600 hover:text-blue-800 font-medium text-sm hover:underline">
+                                        Editar
+                                    </a>
+                                    <form asp-action="Delete" asp-route-id="@r.Id" method="post" class="inline"
+                                          onsubmit="return confirm('¿Eliminar este recordatorio?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="text-red-600 hover:text-red-800 font-medium text-sm hover:underline">
+                                            Eliminar
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
 
-                        <form asp-action="Delete" asp-route-id="@r.Id" method="post" class="inline"
-                              onsubmit="return confirm('¿Eliminar este recordatorio?');">
-                            @Html.AntiForgeryToken()
-                            <button type="submit" class="text-red-600 hover:underline">Eliminar</button>
-                        </form>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+        @if (!Model.Items.Any())
+        {
+            <div class="text-center py-12">
+                <p class="text-sm text-gray-500">No hay recordatorios registrados.</p>
+            </div>
+        }
+
+        @if (totalPages > 1)
+        {
+            <div class="flex items-center justify-between border-t border-gray-200 px-4 py-3 bg-gray-50">
+                <p class="text-sm text-gray-500">
+                    Página <span class="font-medium text-gray-700">@pageNumber</span> de
+                    <span class="font-medium text-gray-700">@totalPages</span>
+                </p>
+
+                <div class="flex items-center gap-1">
+                    <a asp-action="Index"
+                       asp-route-pageNumber="@(pageNumber - 1)"
+                       class="@(pageNumber <= 1 ? "pointer-events-none opacity-40" : "hover:bg-gray-100") px-3 py-1.5 rounded-md border border-gray-300 text-sm text-gray-600 transition-colors">
+                        Anterior
+                    </a>
+
+                    @for (var i = 1; i <= totalPages; i++)
+                    {
+                        <a asp-action="Index"
+                           asp-route-pageNumber="@i"
+                           class="@(i == pageNumber ? "bg-blue-600 text-white border-blue-600" : "border-gray-300 text-gray-600 hover:bg-gray-100") px-3 py-1.5 rounded-md border text-sm transition-colors">
+                            @i
+                        </a>
+                    }
+
+                    <a asp-action="Index"
+                       asp-route-pageNumber="@(pageNumber + 1)"
+                       class="@(pageNumber >= totalPages ? "pointer-events-none opacity-40" : "hover:bg-gray-100") px-3 py-1.5 rounded-md border border-gray-300 text-sm text-gray-600 transition-colors">
+                        Siguiente
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+
 </div>

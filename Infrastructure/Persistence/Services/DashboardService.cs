@@ -5,16 +5,19 @@ using System.Threading.Tasks;
 using Application.DTOs.Dashboard;
 using Application.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Persistence.Services
 {
     public class DashboardService : IDashboardService
     {
         private readonly RecordAppDbContext _context;
+        private readonly ILogger<DashboardService> _logger;
 
-        public DashboardService(RecordAppDbContext context)
+        public DashboardService(RecordAppDbContext context, ILogger<DashboardService> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public async Task<TenantDashboardDto> GetDashboardStatsAsync(Guid tenantId, DateTime? startDate = null, DateTime? endDate = null)
@@ -28,7 +31,7 @@ namespace Infrastructure.Persistence.Services
 
             // Consulta base de eventos del Tenant en el rango de fechas
             var queryEventos = _context.Eventos
-                .Where(e => e.TenantId == tenantId && e.Fecha >= start && e.Fecha <= end);
+                .Where(e => e.TenantId == tenantId);
 
             var totalEventos = await queryEventos.CountAsync();
             
@@ -36,6 +39,8 @@ namespace Infrastructure.Persistence.Services
             var ingresosTotales = await queryEventos
                 .Where(e => e.Estado == "Completado" && e.Monto != null)
                 .SumAsync(e => e.Monto ?? 0);
+
+            _logger.LogInformation($"Ingresos: {ingresosTotales}, Total Eventos: {totalEventos}, Total Clientes: {totalClientes}");
 
             var eventosPendientes = await queryEventos
                 .CountAsync(e => e.Estado == "Pendiente");
