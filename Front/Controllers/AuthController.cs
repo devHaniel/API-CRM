@@ -109,7 +109,7 @@ namespace Front.Controllers
                         ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8)
                     });
 
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Index", "Dashboard");
             }
             catch (UnauthorizedAccessException ex)
             {

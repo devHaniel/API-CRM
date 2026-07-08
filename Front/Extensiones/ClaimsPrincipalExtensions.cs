@@ -22,5 +22,11 @@ namespace Front.Extensiones
         {
             return user?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value == "Admin";
         }
+
+        public static Guid GetPlanId(this ClaimsPrincipal user)
+        {
+            var planIdClaim = user?.Claims.FirstOrDefault(c => c.Type == "PlanId")?.Value;
+            return Guid.TryParse(planIdClaim, out var planId) ? planId : Guid.Empty;
+        }
     }
 }

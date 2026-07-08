@@ -1,0 +1,80 @@
+@using Front.Models.Shared
+@model PlanCardViewModel
+
+@{
+    var colorBarra = "bg-blue-600";
+
+    if (Model.PorcentajeUso >= 90)
+        colorBarra = "bg-red-500";
+    else if (Model.PorcentajeUso >= 70)
+        colorBarra = "bg-yellow-500";
+}
+
+<div class="bg-white border border-gray-200 rounded-xl shadow-sm p-4">
+
+    <div class="flex justify-between items-start">
+
+        <div>
+
+            <p class="text-xs uppercase tracking-wider text-gray-500">
+                Plan actual
+            </p>
+
+            <h3 class="mt-1 font-semibold text-gray-900">
+                @Model.Nombre
+            </h3>
+
+        </div>
+
+        <span class="px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-medium">
+            Activo
+        </span>
+
+    </div>
+
+    <div class="mt-5">
+
+        <div class="flex justify-between text-xs text-gray-500 mb-2">
+
+            <span>Uso mensual</span>
+
+            <span>
+                @Model.RecordatoriosUsados /
+                @Model.LimiteRecordatoriosMes
+            </span>
+
+        </div>
+
+        <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+
+            <div class="@colorBarra h-2 rounded-full transition-all duration-500"
+                 style="width:@Model.PorcentajeUso%">
+            </div>
+
+        </div>
+
+        <p class="mt-3 text-xs text-gray-500">
+
+            Restan
+
+            <span class="font-semibold text-gray-900">
+
+                @Model.RecordatoriosRestantes
+
+            </span>
+
+            recordatorios este mes.
+
+        </p>
+
+    </div>
+
+    <a asp-controller="Planes"
+       asp-action="Index"
+       class="mt-5 flex justify-center items-center w-full rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 transition">
+
+        Actualizar plan
+
+    </a>
+
+</div>
