@@ -72,7 +72,7 @@ namespace Application.Services
 
             await _emailService.SendWelcomeEmailAsync(
                 usuario.Email,
-                usuario.Email.Split('@')[0],
+                usuario.Tenant.Nombre,
                 ct);
 
             return new AuthResponseDto(token, usuario.Email, usuario.Rol, tenant.Id, tenant.Nombre);

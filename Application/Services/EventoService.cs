@@ -53,11 +53,11 @@ namespace Application.Services
                 Id = Guid.NewGuid(),
                 TenantId = tenantId,
                 ClienteId = dto.ClienteId,
-                Tipo = dto.Tipo,
+                Tipo = "Cita",
                 Fecha = DateTime.SpecifyKind(dto.Fecha, DateTimeKind.Utc),
                 Descripcion = dto.Descripcion,
                 Monto = dto.Monto,
-                Estado = string.IsNullOrWhiteSpace(dto.Estado) ? "Pendiente" : dto.Estado,
+                Estado = "Pendiente",
                 FechaCreacion = DateTime.UtcNow
             };
 
@@ -111,7 +111,6 @@ namespace Application.Services
             await ValidarClienteDelTenantAsync(tenantId, dto.ClienteId, ct);
 
             evento.ClienteId = dto.ClienteId;
-            evento.Tipo = dto.Tipo;
             evento.Fecha = DateTime.SpecifyKind(dto.Fecha, DateTimeKind.Utc);
             evento.Descripcion = dto.Descripcion;
             evento.Monto = dto.Monto;
@@ -135,6 +134,32 @@ namespace Application.Services
             var cliente = await _clienteRepository.GetByIdAsync(clienteId, tenantId, ct);
             if (cliente is null)
                 throw new InvalidOperationException("El cliente no existe o no pertenece al tenant actual.");
+        }
+
+        public async Task MarcarComoPagadoAsync(Guid tenantId, Guid eventoId, CancellationToken ct = default)
+        {
+            var evento = await _eventoRepository.GetByIdAsync(eventoId, tenantId, ct)
+                ?? throw new KeyNotFoundException("Evento no encontrado.");
+
+            if (evento.Monto is null)
+                throw new InvalidOperationException("Este evento no tiene un monto asociado.");
+
+            if (evento.Estado == "Pagado")
+                throw new InvalidOperationException("Este pago ya fue registrado como pagado.");
+
+            evento.Estado = "Pagado";
+            _eventoRepository.Update(evento);
+            await _eventoRepository.SaveChangesAsync(ct);
+        }
+
+        public async Task MarcarComoCanceladoAsync(Guid tenantId, Guid eventoId, CancellationToken ct = default)
+        {
+            var evento = await _eventoRepository.GetByIdAsync(eventoId, tenantId, ct)
+                ?? throw new KeyNotFoundException("Evento no encontrado.");
+
+            evento.Estado = "Cancelado";
+            _eventoRepository.Update(evento);
+            await _eventoRepository.SaveChangesAsync(ct);
         }
 
         private static EventoDto MapToDto(Evento e)

@@ -65,8 +65,9 @@ namespace Infrastructure.Persistence.Repositories
 
         public async Task<IEnumerable<Evento>> GetPendientesDePagoAsync(Guid tenantId, CancellationToken ct = default)
             => await _context.Eventos
-                .Where(e => e.TenantId == tenantId && e.Tipo == "Pago" && e.Estado != "Pagado")
+                .Where(e => e.TenantId == tenantId && e.Monto != null && e.Estado != "Pagado" && e.Estado != "Cancelado")
                 .Include(e => e.Cliente)
+                .OrderBy(e => e.Fecha)
                 .ToListAsync(ct);
     }
 }

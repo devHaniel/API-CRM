@@ -16,16 +16,6 @@
     </div>
 
     <div>
-        <label asp-for="Tipo" class="block text-sm font-medium text-gray-700"></label>
-        <select asp-for="Tipo" id="tipoSelect"
-                class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option value="Cita">Cita</option>
-            <option value="Pago">Pago</option>
-        </select>
-        <span asp-validation-for="Tipo" class="text-red-600 text-sm"></span>
-    </div>
-
-    <div>
         <label asp-for="Descripcion" class="block text-sm font-medium text-gray-700"></label>
         <input asp-for="Descripcion"
                class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -40,33 +30,22 @@
         <span asp-validation-for="Fecha" class="text-red-600 text-sm"></span>
     </div>
 
-    <div id="montoContainer">
+    <div>
         <label asp-for="Monto" class="block text-sm font-medium text-gray-700"></label>
         <input asp-for="Monto" type="number" step="0.01"
                class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-               placeholder="0.00" />
+               placeholder="0.00 (opcional)" />
         <span asp-validation-for="Monto" class="text-red-600 text-sm"></span>
     </div>
 
-    <div>
-        <label asp-for="Estado" class="block text-sm font-medium text-gray-700"></label>
-        <select asp-for="Estado" asp-items="Model.EstadosDisponibles"
-                class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </select>
-        <span asp-validation-for="Estado" class="text-red-600 text-sm"></span>
-    </div>
+    @if (Model.Id != Guid.Empty)
+    {
+        <div>
+            <label asp-for="Estado" class="block text-sm font-medium text-gray-700"></label>
+            <select asp-for="Estado" asp-items="Model.EstadosDisponibles"
+                    class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </select>
+            <span asp-validation-for="Estado" class="text-red-600 text-sm"></span>
+        </div>
+    }
 </div>
-
-<script>
-    (function () {
-        const tipoSelect = document.getElementById('tipoSelect');
-        const montoContainer = document.getElementById('montoContainer');
-
-        function toggleMonto() {
-            montoContainer.style.display = tipoSelect.value === 'Pago' ? 'block' : 'none';
-        }
-
-        tipoSelect.addEventListener('change', toggleMonto);
-        toggleMonto(); // estado inicial al cargar la página
-    })();
-</script>

@@ -62,24 +62,20 @@ namespace Infrastructure.Persistence.Services
         }
 
         public async Task<bool> SendWelcomeEmailAsync(
-            string to,
-            string nombre,
-            CancellationToken ct = default)
+        string to,
+        string nombre,
+        CancellationToken ct = default)
         {
             var html = $@"
-                <h2>¡Bienvenido a RecordApp!</h2>
-
-                <p>Hola <strong>{nombre}</strong>,</p>
-
-                <p>Tu cuenta ha sido creada correctamente.</p>
-
-                <p>Ya puedes iniciar sesión y comenzar a utilizar la plataforma.</p>
-
-                <br>
-
-                <p>Gracias por confiar en nosotros.</p>
-
-                <p><strong>Equipo RecordApp</strong></p>";
+                <div style=""background-color:#26215C; padding:32px 40px; text-align:center; border-radius:12px 12px 0 0;"">
+                    <div style=""font-size:22px; font-weight:bold; color:#FFFFFF;"">RecordApp</div>
+                </div>
+                <div style=""background:#fff; padding:32px 40px; font-family:Arial, sans-serif; color:#444441;"">
+                    <h1 style=""color:#2C2C2A; font-size:22px; margin-top:0;"">¡Bienvenido a RecordApp!</h1>
+                    <p>Hola equipo de <strong>{nombre}</strong>,</p>
+                    <p>Tu cuenta de empresa ha sido creada correctamente. Ya puedes iniciar sesión y comenzar a utilizar la plataforma.</p>
+                    <p style=""color:#888780; font-size:13px;"">Gracias por confiar en nosotros.<br><strong>Equipo RecordApp</strong></p>
+                </div>";
 
             return await SendEmailAsync(
                 to,

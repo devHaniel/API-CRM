@@ -13,5 +13,7 @@ namespace Application.Interfaces
         Task<IEnumerable<EventoDto>> ObtenerPendientesDePagoAsync(Guid tenantId, CancellationToken ct = default);
         Task ActualizarAsync(Guid tenantId, Guid id, ActualizarEventoDto dto, CancellationToken ct = default);
         Task EliminarAsync(Guid tenantId, Guid id, CancellationToken ct = default);
+        Task MarcarComoPagadoAsync(Guid tenantId, Guid eventoId, CancellationToken ct = default);
+        Task MarcarComoCanceladoAsync(Guid tenantId, Guid eventoId, CancellationToken ct = default);
     }
 }

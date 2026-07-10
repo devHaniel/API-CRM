@@ -15,7 +15,6 @@ namespace Front.Models.Eventos
         [Display(Name = "Cliente")]
         public Guid ClienteId { get; set; }
 
-        [Required(ErrorMessage = "El tipo es obligatorio")]
         public string Tipo { get; set; } = "Cita";
 
         [Required(ErrorMessage = "La fecha es obligatoria")]
@@ -33,14 +32,11 @@ namespace Front.Models.Eventos
         // Para poblar el <select> de clientes — no se envía al servidor, solo para renderizar
         public List<SelectListItem> ClientesDisponibles { get; set; } = [];
 
-        public List<SelectListItem> EstadosDisponibles { get; set; } =
+        public List<SelectListItem> EstadosDisponibles { get; } =
         [
             new("Pendiente", "Pendiente"),
-            new("Confirmado", "Confirmado"),
-            new("Completado", "Completado"),
-            new("Cancelado", "Cancelado"),
             new("Pagado", "Pagado"),
-            new("Vencido", "Vencido")
+            new("Cancelado", "Cancelado")
         ];
     }
 }

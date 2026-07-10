@@ -35,9 +35,9 @@ namespace Infrastructure.Persistence.Services
 
             var totalEventos = await queryEventos.CountAsync();
             
-            // Suma de ingresos de los eventos completados
+            // Suma de ingresos de los eventos pagados
             var ingresosTotales = await queryEventos
-                .Where(e => e.Estado == "Completado" && e.Monto != null)
+                .Where(e => e.Estado == "Pagado" && e.Monto != null)
                 .SumAsync(e => e.Monto ?? 0);
 
             _logger.LogInformation($"Ingresos: {ingresosTotales}, Total Eventos: {totalEventos}, Total Clientes: {totalClientes}");
