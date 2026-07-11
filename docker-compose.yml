@@ -1,0 +1,46 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: recordApp
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d recordApp"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=recordApp;Username=postgres;Password=admin"
+      Jwt__Key: ${JWT_KEY}
+      Jwt__Issuer: ${JWT_ISSUER}
+      Jwt__Audience: ${JWT_AUDIENCE}
+      Jwt__ExpiraEnHoras: ${JWT_EXPIRATION_HOURS}
+
+      Twilio__AccountSid: ${TWILIO_ACCOUNT_SID}
+      Twilio__AuthToken: ${TWILIO_AUTH_TOKEN}
+      Twilio__FromNumber: ${TWILIO_FROM_NUMBER}
+
+      Gmail__Host: ${GMAIL_HOST}
+      Gmail__Port: ${GMAIL_PORT}
+      Gmail__Email: ${GMAIL_EMAIL}
+      Gmail__Password: ${GMAIL_PASSWORD}
+      Gmail__DisplayName: ${GMAIL_DISPLAY_NAME}
+      
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
