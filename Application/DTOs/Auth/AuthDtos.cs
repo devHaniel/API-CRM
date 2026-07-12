@@ -32,4 +32,14 @@ namespace Application.DTOs.Auth
     [Required, MinLength(8)] string Password,
     [Required] string Rol   // "Admin" o "Empleado"
 );
+
+    public record ForgotPasswordDto(
+        [Required, EmailAddress] string Email
+    );
+
+    public record ResetPasswordDto(
+        [Required, EmailAddress] string Email,
+        [Required] string Token,
+        [Required, MinLength(8)] string NewPassword
+    );
 }

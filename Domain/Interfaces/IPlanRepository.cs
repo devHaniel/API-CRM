@@ -22,5 +22,6 @@ namespace Domain.Interfaces
         Task<Plane?> ObtenerPlanDelTenantAsync(Guid tenantId, CancellationToken ct = default);
         Task AsignarPlanAlTenantAsync(Guid tenantId, Guid planId, CancellationToken ct = default);
         Task<int> ContarRecordatoriosDelMesAsync(Guid tenantId, CancellationToken ct = default);
+        Task<int> ContarUsuariosAsync(Guid tenantId, CancellationToken ct = default);
     }
 }

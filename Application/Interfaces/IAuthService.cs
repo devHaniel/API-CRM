@@ -11,5 +11,7 @@ namespace Application.Interfaces
         Task<AuthResponseDto> RegisterTenantAsync(RegisterTenantDto dto, CancellationToken ct = default);
         Task<AuthResponseDto> LoginAsync(LoginDto dto, CancellationToken ct = default);
         Task<Guid> CrearUsuarioAsync(CrearUsuarioDto dto, CancellationToken ct = default);
+        Task<string> ForgotPasswordAsync(ForgotPasswordDto dto, CancellationToken ct = default);
+        Task ResetPasswordAsync(string email, string newPassword, CancellationToken ct = default);
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Domain;
 using Domain.Entities;
 using Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -66,6 +67,14 @@ namespace Infrastructure.Persistence.Repositories
             return await _context.Recordatorios
                 .Where(r => r.Evento.TenantId == tenantId && r.FechaCreacion >= inicioMes)
                 .CountAsync(ct);
+        }
+
+        public async Task<int> ContarUsuariosAsync(Guid tenantId, CancellationToken ct = default)
+        {
+            return await _context.Usuarios
+                .Where(u => u.TenantId == tenantId)
+                .CountAsync(ct);
+
         }
     }
 }

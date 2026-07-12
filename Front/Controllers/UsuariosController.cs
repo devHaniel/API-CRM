@@ -15,12 +15,18 @@ namespace Front.Controllers
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly IAuthService _authService;
         private readonly ICurrentTenantService _currentTenantService;
+        private readonly IPasswordHasher _passwordHasher;
 
-        public UsuariosController(IUsuarioRepository usuarioRepository, IAuthService authService, ICurrentTenantService currentTenantService)
+        public UsuariosController(
+            IUsuarioRepository usuarioRepository,
+            IAuthService authService,
+            ICurrentTenantService currentTenantService,
+            IPasswordHasher passwordHasher)
         {
             _usuarioRepository = usuarioRepository;
             _authService = authService;
             _currentTenantService = currentTenantService;
+            _passwordHasher = passwordHasher;
         }
 
         public async Task<IActionResult> Index(CancellationToken ct)
@@ -67,15 +73,28 @@ namespace Front.Controllers
                 return View(model);
             }
 
-            var usuario = new CrearUsuarioDto(
-                model.Email,
-                model.Password,
-                model.Rol
-            );
+            try
+            {
+                var usuario = new CrearUsuarioDto(
+                    model.Email,
+                    model.Password,
+                    model.Rol
+                );
 
-            await _authService.CrearUsuarioAsync(usuario, ct);
+                await _authService.CrearUsuarioAsync(usuario, ct);
 
-            return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index));
+            }
+            catch (InvalidOperationException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View(model);
+            }
+            catch (ArgumentException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View(model);
+            }
         }
         public async Task<IActionResult> Edit(Guid id, CancellationToken ct)
         {
@@ -114,7 +133,7 @@ namespace Front.Controllers
             usuario.Activo = model.Activo;
             if (!string.IsNullOrWhiteSpace(model.Password))
             {
-                usuario.PasswordHash = model.Password;
+                usuario.PasswordHash = _passwordHasher.Hash(model.Password);
             }
 
             _usuarioRepository.Update(usuario);

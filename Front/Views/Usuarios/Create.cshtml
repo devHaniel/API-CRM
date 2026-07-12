@@ -3,36 +3,52 @@
     ViewData["Title"] = "Crear usuario";
 }
 
-<h2>Crear usuario</h2>
+<h1 class="text-2xl font-bold mb-6">Crear usuario</h1>
 
-<form asp-action="Create" method="post">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="bg-white p-8 rounded-lg shadow max-w-lg">
+    <form asp-action="Create" method="post">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="bg-red-50 text-red-700 border border-red-200 rounded-md p-3 mb-4 text-sm"></div>
 
-    <div class="mb-3">
-        <label asp-for="Email" class="form-label"></label>
-        <input asp-for="Email" class="form-control" />
-        <span asp-validation-for="Email" class="text-danger"></span>
-    </div>
+        <div class="space-y-4">
+            <div>
+                <label asp-for="Email" class="block text-sm font-medium text-gray-700"></label>
+                <input asp-for="Email" class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <span asp-validation-for="Email" class="text-red-600 text-sm"></span>
+            </div>
 
-    <div class="mb-3">
-        <label asp-for="Password" class="form-label"></label>
-        <input asp-for="Password" class="form-control" />
-        <span asp-validation-for="Password" class="text-danger"></span>
-    </div>
+            <div>
+                <label asp-for="Password" class="block text-sm font-medium text-gray-700"></label>
+                <input asp-for="Password" class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <span asp-validation-for="Password" class="text-red-600 text-sm"></span>
+            </div>
 
-    <div class="mb-3">
-        <label asp-for="Rol" class="form-label"></label>
-        <select asp-for="Rol" class="form-select">
-            <option value="Admin">Admin</option>
-            <option value="Empleado">Empleado</option>
-        </select>
-    </div>
+            <div>
+                <label asp-for="Rol" class="block text-sm font-medium text-gray-700"></label>
+                <select asp-for="Rol" class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="Admin">Admin</option>
+                    <option value="Empleado">Empleado</option>
+                </select>
+                <span asp-validation-for="Rol" class="text-red-600 text-sm"></span>
+            </div>
 
-    <div class="form-check mb-3">
-        <input asp-for="Activo" class="form-check-input" />
-        <label asp-for="Activo" class="form-check-label"></label>
-    </div>
+            <div class="flex items-center gap-2">
+                <input asp-for="Activo" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                <label asp-for="Activo" class="text-sm font-medium text-gray-700"></label>
+            </div>
+        </div>
 
-    <button type="submit" class="btn btn-primary">Guardar</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
-</form>
+        <div class="flex justify-end gap-3 mt-6">
+            <a asp-action="Index" class="px-4 py-2 rounded-md border border-gray-300 text-gray-600 hover:bg-gray-50 transition">
+                Cancelar
+            </a>
+            <button type="submit" class="bg-blue-600 text-white px-5 py-2 rounded-md font-medium hover:bg-blue-700 transition">
+                Guardar
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

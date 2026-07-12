@@ -91,25 +91,32 @@ namespace Infrastructure.Persistence.Services
             CancellationToken ct = default)
         {
             var html = $@"
-                <h2>Recuperación de contraseña</h2>
+                <div style=""background-color:#26215C; padding:32px 40px; text-align:center; border-radius:12px 12px 0 0;"">
+                    <div style=""font-size:22px; font-weight:bold; color:#FFFFFF;"">RecordApp</div>
+                </div>
+                <div style=""background:#fff; padding:32px 40px; font-family:Arial, sans-serif; color:#444441;"">
+                    <h2 style=""color:#2C2C2A; font-size:20px; margin-top:0;"">Recuperación de contraseña</h2>
 
-                <p>Hola <strong>{nombre}</strong>,</p>
+                    <p>Hola <strong>{nombre}</strong>,</p>
 
-                <p>Recibimos una solicitud para restablecer tu contraseña.</p>
+                    <p>Recibimos una solicitud para restablecer tu contraseña.</p>
 
-                <p>
-                    <a href='{resetLink}'>
-                        Restablecer contraseña
-                    </a>
-                </p>
+                    <p style=""font-size:14px; color:#555;"">Ingresa el siguiente código de verificación:</p>
 
-                <p>Si tú no realizaste esta solicitud, puedes ignorar este correo.</p>
+                    <div style=""background:#f4f4f6; padding:16px; border-radius:8px; text-align:center; font-size:32px; font-weight:bold; letter-spacing:8px; color:#26215C; margin:20px 0;"">
+                        {resetLink}
+                    </div>
 
-                <p>Equipo RecordApp</p>";
+                    <p style=""font-size:13px; color:#888;"">Este código expira en 15 minutos.</p>
+
+                    <p style=""color:#888780; font-size:13px;"">Si tú no realizaste esta solicitud, puedes ignorar este correo.</p>
+
+                    <p style=""color:#888780; font-size:13px;"">Gracias,<br><strong>Equipo RecordApp</strong></p>
+                </div>";
 
             return await SendEmailAsync(
                 to,
-                "Recuperación de contraseña",
+                "Recuperación de contraseña - Código de verificación",
                 html,
                 ct);
         }

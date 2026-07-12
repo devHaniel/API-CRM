@@ -42,6 +42,33 @@ namespace Front.Controllers
             return View(resultado);
         }
 
+        public async Task<IActionResult> Details(Guid id, CancellationToken ct)
+        {
+            var tenantId = _currentTenantService.TenantId;
+            var recordatorio = await _recordatorioService.ObtenerPorIdAsync(tenantId, id, ct);
+
+            if (recordatorio is null)
+                return NotFound();
+
+            var model = new RecordatorioDetailsViewModel
+            {
+                Id = recordatorio.Id,
+                EventoId = recordatorio.EventoId,
+                EventoTipo = recordatorio.EventoTipo,
+                ClienteId = recordatorio.ClienteId,
+                ClienteNombre = recordatorio.ClienteNombre,
+                PlantillaId = recordatorio.PlantillaId,
+                CanalEnvio = recordatorio.CanalEnvio,
+                FechaProgramada = recordatorio.FechaProgramada,
+                FechaEnvio = recordatorio.FechaEnvio,
+                Estado = recordatorio.Estado,
+                DetalleError = recordatorio.DetalleError,
+                FechaCreacion = recordatorio.FechaCreacion
+            };
+
+            return View(model);
+        }
+
         public async Task<IActionResult> Create(CancellationToken ct)
         {
             var model = new RecordatorioFormViewModel();

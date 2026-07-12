@@ -60,5 +60,23 @@ namespace Front.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MarcarComoCancelado(Guid id, CancellationToken ct)
+        {
+            var tenantId = _currentTenantService.TenantId;
+
+            try
+            {
+                await _eventoService.MarcarComoCanceladoAsync(tenantId, id, ct);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

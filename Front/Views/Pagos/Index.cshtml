@@ -63,21 +63,30 @@
                         </span>
                     </td>
                     <td class="p-3 text-right">
-                        <form asp-action="MarcarComoPagado" asp-route-id="@pago.Id" method="post" class="inline"
-                              onsubmit="return confirm('¿Confirmas que este pago ya fue cobrado?');">
-                            @Html.AntiForgeryToken()
-                            <button type="submit"
-                                    class="bg-green-600 text-white px-3 py-1.5 rounded-md text-xs font-medium hover:bg-green-700 transition">
-                                Marcar como pagado
-                            </button>
-                        </form>
-                        <form asp-action="MarcarComoCancelado" asp-route-id="@pago.Id" method="post" class="inline"
-                            onsubmit="return confirm('¿Cancelar este pago?');">
-                            @Html.AntiForgeryToken()
-                            <button type="submit" class="text-gray-500 hover:text-red-600 text-xs ml-2">
-                                Cancelar
-                            </button>
-                        </form>
+                        <div class="flex justify-end items-center gap-2">
+                            <form asp-action="MarcarComoPagado" asp-route-id="@pago.Id" method="post" class="inline"
+                                  onsubmit="return confirm('¿Confirmas que este pago ya fue cobrado?');">
+                                @Html.AntiForgeryToken()
+                                <button type="submit"
+                                        class="inline-flex items-center gap-1.5 bg-green-600 text-white px-3 py-1.5 rounded-md text-xs font-medium hover:bg-green-700 transition">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    Marcar como pagado
+                                </button>
+                            </form>
+                            <form asp-action="MarcarComoCancelado" asp-route-id="@pago.Id" method="post" class="inline"
+                                onsubmit="return confirm('¿Cancelar este pago?');">
+                                @Html.AntiForgeryToken()
+                                <button type="submit"
+                                        class="inline-flex items-center gap-1 text-gray-500 hover:text-red-600 text-xs transition">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                    Cancelar
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
             }

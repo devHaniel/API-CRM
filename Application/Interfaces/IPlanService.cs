@@ -18,5 +18,6 @@ namespace Application.Interfaces
         Task<TenantPlanDto> ObtenerPlanDelTenantAsync(Guid tenantId, CancellationToken ct = default);
         Task CambiarPlanDelTenantAsync(Guid tenantId, Guid nuevoPlanId, CancellationToken ct = default);
         Task<bool> PuedeEnviarMasRecordatoriosAsync(Guid tenantId, CancellationToken ct = default);
+        Task<bool> PuedeCrearUsuariosAsync(Guid tenantId, CancellationToken ct = default);
     }
 }

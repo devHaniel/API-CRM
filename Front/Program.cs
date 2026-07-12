@@ -42,7 +42,7 @@ builder.Services.AddHangfire(config => config
         connectionString,
         new PostgreSqlStorageOptions
         {
-            PrepareSchemaIfNecessary = false  
+            PrepareSchemaIfNecessary = true  
         }));
 
 builder.Services.AddHangfireServer();

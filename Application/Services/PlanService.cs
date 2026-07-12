@@ -144,6 +144,16 @@ namespace Application.Services
             return uso < plan.LimiteRecordatoriosMes;
         }
 
+        public async Task<bool> PuedeCrearUsuariosAsync(Guid tenantId, CancellationToken ct = default)
+        {
+            var plan = await _planRepository.ObtenerPlanDelTenantAsync(tenantId, ct);
+            if (plan is null)
+                return false;
+
+            var totalUsuarios = await _planRepository.ContarUsuariosAsync(tenantId, ct);
+            return totalUsuarios < plan.MaxUsuarios;
+        }
+
         private static PlanDto MapToDto(Plane p)
             => new(p.Id, p.Nombre, p.PrecioMensual, p.LimiteRecordatoriosMes, p.PrecioRecordatorioExtra, p.MaxUsuarios, p.Activo, p.FechaCreacion);
     }

@@ -1,0 +1,144 @@
+@using Front.Models.Eventos
+@using Application.DTOs.Recordatorio
+@model EventoDetailsViewModel
+
+@{
+    ViewData["Title"] = "Detalles del Evento";
+}
+
+<h1 class="text-2xl font-semibold text-gray-800 mb-6">Detalles del Evento</h1>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+    <div class="bg-white rounded-lg border border-gray-200 p-6 space-y-4">
+        <h2 class="text-lg font-medium text-gray-800 mb-2">Información del Evento</h2>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Cliente</label>
+            <p class="mt-1 text-sm text-gray-900">
+                <a asp-controller="Clientes" asp-action="Details" asp-route-id="@Model.ClienteId"
+                   class="text-blue-600 hover:underline">
+                    @Model.ClienteNombre
+                </a>
+            </p>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Tipo</label>
+            <span class="mt-1 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium @(Model.Tipo == "Pago" ? "bg-amber-100 text-amber-700" : "bg-blue-100 text-blue-700")">
+                <span class="w-1.5 h-1.5 rounded-full @(Model.Tipo == "Pago" ? "bg-amber-500" : "bg-blue-500")"></span>
+                @Model.Tipo
+            </span>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Fecha</label>
+            <p class="mt-1 text-sm text-gray-900">@Model.Fecha.ToString("dd/MM/yyyy HH:mm")</p>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Model.Descripcion))
+        {
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Descripción</label>
+                <p class="mt-1 text-sm text-gray-900">@Model.Descripcion</p>
+            </div>
+        }
+
+        @if (Model.Monto.HasValue)
+        {
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Monto</label>
+                <p class="mt-1 text-sm text-gray-900">@Model.Monto.Value.ToString("C")</p>
+            </div>
+        }
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Estado</label>
+            @{
+                var badgeClass = Model.Estado?.ToLower() switch
+                {
+                    "pagado" => "bg-green-100 text-green-700",
+                    "pendiente" => "bg-yellow-100 text-yellow-700",
+                    "cancelado" => "bg-red-100 text-red-700",
+                    _ => "bg-gray-100 text-gray-700"
+                };
+            }
+            <span class="mt-1 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium @badgeClass">
+                <span class="w-1.5 h-1.5 rounded-full bg-current opacity-50"></span>
+                @Model.Estado
+            </span>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Fecha de creación</label>
+            <p class="mt-1 text-sm text-gray-500">@Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <h2 class="text-lg font-medium text-gray-800 mb-4">Recordatorios asociados</h2>
+
+        @if (Model.Recordatorios.Any())
+        {
+            <ul class="space-y-4 max-h-[500px] overflow-y-auto pr-1">
+                @foreach (var r in Model.Recordatorios)
+                {
+                    <li class="border border-gray-200 rounded-md p-4">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-sm font-semibold text-gray-800">@r.CanalEnvio</span>
+                            @{
+                                var estadoBadge = r.Estado switch
+                                {
+                                    "Enviado" => "bg-green-100 text-green-700",
+                                    "Fallido" => "bg-red-100 text-red-700",
+                                    _ => "bg-gray-100 text-gray-700"
+                                };
+                            }
+                            <span class="text-xs font-medium px-2 py-1 rounded-full @estadoBadge">
+                                @r.Estado
+                            </span>
+                        </div>
+
+                        <p class="text-xs text-gray-500 mb-1">
+                            Programado: @r.FechaProgramada.ToString("dd/MM/yyyy HH:mm")
+                        </p>
+
+                        @if (r.FechaEnvio.HasValue)
+                        {
+                            <p class="text-xs text-gray-500 mb-1">
+                                Enviado: @r.FechaEnvio.Value.ToString("dd/MM/yyyy HH:mm")
+                            </p>
+                        }
+
+                        @if (!string.IsNullOrWhiteSpace(r.DetalleError))
+                        {
+                            <p class="text-xs text-red-600 mt-2">Error: @r.DetalleError</p>
+                        }
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p class="text-sm text-gray-500">Este evento no tiene recordatorios.</p>
+        }
+    </div>
+
+</div>
+
+<div class="mt-6 flex gap-3">
+    <a asp-action="Edit" asp-route-id="@Model.Id"
+       class="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-gray-300 text-gray-600 hover:bg-gray-50 transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+        </svg>
+        Editar
+    </a>
+    <a asp-action="Index"
+       class="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-gray-300 text-gray-600 hover:bg-gray-50 transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        Volver
+    </a>
+</div>

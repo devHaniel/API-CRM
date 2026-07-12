@@ -99,6 +99,10 @@ namespace Application.Services
 
         public async Task<Guid> CrearUsuarioAsync(CrearUsuarioDto dto, CancellationToken ct = default)
         {
+
+            if(await _planService.PuedeCrearUsuariosAsync(_tenantService.TenantId, ct) == false)
+                throw new InvalidOperationException("Se ha alcanzado el límite de usuarios permitidos por el plan actual.");
+
             if (await _usuarioRepository.ExisteEmailAsync(dto.Email, ct))
                 throw new InvalidOperationException("Ya existe una cuenta con ese email.");
 
@@ -120,6 +124,36 @@ namespace Application.Services
             await _usuarioRepository.SaveChangesAsync(ct);
 
             return usuario.Id;
+        }
+
+        public async Task<string> ForgotPasswordAsync(ForgotPasswordDto dto, CancellationToken ct = default)
+        {
+            var usuario = await _usuarioRepository.GetByEmailAsync(dto.Email, ct);
+            if (usuario is null || !usuario.Activo)
+                return string.Empty;
+
+            var code = Random.Shared.Next(100000, 999999).ToString();
+
+            await _emailService.SendPasswordResetEmailAsync(
+                usuario.Email,
+                usuario.Email.Split('@')[0],
+                code,
+                ct);
+
+            return code;
+        }
+
+        public async Task ResetPasswordAsync(string email, string newPassword, CancellationToken ct = default)
+        {
+            var usuario = await _usuarioRepository.GetByEmailAsync(email, ct)
+                ?? throw new InvalidOperationException("Cuenta no encontrada.");
+
+            if (!usuario.Activo)
+                throw new InvalidOperationException("Usuario inactivo.");
+
+            usuario.PasswordHash = _passwordHasher.Hash(newPassword);
+            _usuarioRepository.Update(usuario);
+            await _usuarioRepository.SaveChangesAsync(ct);
         }
     }
 }

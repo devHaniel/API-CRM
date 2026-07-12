@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
 
+using Front.Models.Recordatorios;
+
 namespace Front.Controllers
 {
     [Authorize]
@@ -20,15 +22,18 @@ namespace Front.Controllers
         private readonly IEventoService _eventoService;
         private readonly IClienteService _clienteService;
         private readonly ICurrentTenantService _currentTenantService;
+        private readonly IRecordatorioService _recordatorioService;
 
         public EventosController(
             IEventoService eventoService,
             IClienteService clienteService,
-            ICurrentTenantService currentTenantService)
+            ICurrentTenantService currentTenantService,
+            IRecordatorioService recordatorioService)
         {
             _eventoService = eventoService;
             _clienteService = clienteService;
             _currentTenantService = currentTenantService;
+            _recordatorioService = recordatorioService;
         }
 
         public async Task<IActionResult> Index(int pageNumber = 1, int pageSize = 10, CancellationToken ct = default)
@@ -53,6 +58,37 @@ namespace Front.Controllers
                 PageSize = resultado.PageSize,
                 TotalCount = resultado.TotalCount,
                 TotalPages = resultado.TotalPages
+            };
+
+            return View(model);
+        }
+
+        public async Task<IActionResult> Details(Guid id, CancellationToken ct)
+        {
+            var tenantId = _currentTenantService.TenantId;
+
+            var evento = await _eventoService.ObtenerPorIdAsync(tenantId, id, ct);
+            if (evento is null)
+                return NotFound();
+
+            var todos = await _recordatorioService.ObtenerTodosAsync(tenantId, 1, 1000, ct);
+            var recordatoriosEvento = todos.Items
+                .Where(r => r.EventoId == id)
+                .OrderByDescending(r => r.FechaCreacion)
+                .ToList();
+
+            var model = new EventoDetailsViewModel
+            {
+                Id = evento.Id,
+                ClienteId = evento.ClienteId,
+                ClienteNombre = evento.ClienteNombre,
+                Tipo = evento.Tipo,
+                Fecha = evento.Fecha,
+                Descripcion = evento.Descripcion,
+                Monto = evento.Monto,
+                Estado = evento.Estado,
+                FechaCreacion = evento.FechaCreacion,
+                Recordatorios = recordatoriosEvento
             };
 
             return View(model);
