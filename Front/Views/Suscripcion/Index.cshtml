@@ -1,0 +1,182 @@
+@using Application.DTOs.Plan
+@model IEnumerable<PlanDto>
+
+@{
+    ViewData["Title"] = "Suscripción";
+    var planActualId = ViewData["PlanActualId"] as Guid?;
+    var planMaxPrecio = (decimal)ViewData["PlanMaxPrecio"]!;
+    var planActual = Model.FirstOrDefault(p => p.Id == planActualId);
+    var esPlanMaximo = planActual is not null && planActual.PrecioMensual >= planMaxPrecio;
+}
+
+<div class="max-w-7xl mx-auto px-4 py-8">
+
+    @if (TempData["Error"] is not null)
+    {
+        <div class="bg-red-50 text-red-700 border border-red-200 rounded-md p-3 mb-4 text-sm">
+            @TempData["Error"]
+        </div>
+    }
+
+    @if (esPlanMaximo)
+    {
+        <div class="bg-blue-50 text-blue-700 border border-blue-200 rounded-md p-4 mb-6 text-sm flex items-center gap-3">
+            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+            <span>Ya estás en el plan más alto disponible. No hay planes superiores para cambiar.</span>
+        </div>
+    }
+
+    @if (TempData["Mensaje"] is not null)
+    {
+        <div class="bg-green-50 text-green-700 border border-green-200 rounded-md p-3 mb-4 text-sm">
+            @TempData["Mensaje"]
+        </div>
+    }
+
+    <div class="mb-10 text-center">
+        <h1 class="text-3xl font-bold text-gray-900">
+            Elige tu plan
+        </h1>
+        <p class="mt-2 text-gray-500 max-w-2xl mx-auto">
+            Selecciona el plan que mejor se adapte a tu negocio.
+            Puedes cambiar o cancelar cuando quieras.
+        </p>
+    </div>
+
+    @if (planActualId is not null)
+    {
+        <div class="flex justify-center gap-4 mb-8">
+
+            <form asp-action="IrAlPortal" method="post">
+                @Html.AntiForgeryToken()
+                <button type="submit"
+                        class="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 font-medium transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065Z" />
+                    </svg>
+                    Gestionar suscripción (Stripe)
+                </button>
+            </form>
+
+            <form asp-action="CancelarSuscripcion" method="post"
+                  onsubmit="return confirm('¿Cancelar la suscripción? El plan seguirá activo hasta el final del periodo facturado.');">
+                @Html.AntiForgeryToken()
+                <button type="submit"
+                        class="inline-flex items-center gap-2 text-sm text-red-600 hover:text-red-700 font-medium transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                    Cancelar suscripción
+                </button>
+            </form>
+
+        </div>
+    }
+
+    <div class="grid lg:grid-cols-3 gap-8 items-stretch">
+
+        @foreach (var plan in Model)
+        {
+            var esActual = plan.Id == planActualId;
+            var popular = plan.Nombre == "Profesional";
+
+            <div class="relative bg-white rounded-2xl border shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col
+                        @(popular ? "lg:-translate-y-4 border-blue-500" : "border-gray-200")
+                        @(esActual ? "ring-2 ring-green-500" : "")">
+
+                @if (popular)
+                {
+                    <div class="absolute top-5 right-5">
+                        <span class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">
+                            Más popular
+                        </span>
+                    </div>
+                }
+
+                @if (esActual)
+                {
+                    <div class="absolute top-5 left-5">
+                        <span class="px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
+                            Plan actual
+                        </span>
+                    </div>
+                }
+
+                <div class="p-8">
+
+                    <h2 class="text-2xl font-bold text-gray-900">
+                        @plan.Nombre
+                    </h2>
+
+                    <p class="mt-3 text-gray-500 leading-relaxed">
+                        Ideal para empresas que necesitan administrar clientes,
+                        eventos y recordatorios.
+                    </p>
+
+                    <div class="mt-8 flex items-end gap-2">
+                        <span class="text-5xl font-bold text-gray-900">
+                            @plan.PrecioMensual.ToString("C0")
+                        </span>
+                        <span class="text-gray-500 mb-2">/mes</span>
+                    </div>
+
+                    <hr class="my-8" />
+
+                    <ul class="space-y-4">
+                        <li class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span class="text-gray-700">@plan.LimiteRecordatoriosMes recordatorios mensuales</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span class="text-gray-700">Hasta @plan.MaxUsuarios usuarios</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span class="text-gray-700">@plan.PrecioRecordatorioExtra.ToString("C") por recordatorio adicional</span>
+                        </li>
+                    </ul>
+
+                </div>
+
+                <div class="mt-auto p-8 pt-0">
+                    @if (esActual)
+                    {
+                        <button disabled
+                                class="w-full bg-gray-100 text-gray-400 rounded-lg py-3 font-semibold cursor-not-allowed">
+                            Plan actual
+                        </button>
+                    }
+                    else if (esPlanMaximo)
+                    {
+                        <button disabled
+                                class="w-full bg-gray-100 text-gray-400 rounded-lg py-3 font-semibold cursor-not-allowed">
+                            No disponible
+                        </button>
+                    }
+                    else
+                    {
+                        <form asp-action="Checkout" asp-route-planId="@plan.Id" method="post">
+                            @Html.AntiForgeryToken()
+                            <button type="submit"
+                                    class="w-full @(popular ? "bg-blue-600 hover:bg-blue-700 text-white" : "bg-gray-100 hover:bg-gray-200 text-gray-700") rounded-lg py-3 font-semibold transition">
+                                @(plan.PrecioMensual > 0 ? "Suscribirse" : "Seleccionar")
+                            </button>
+                        </form>
+                    }
+                </div>
+
+            </div>
+        }
+
+    </div>
+
+</div>

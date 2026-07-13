@@ -37,6 +37,10 @@ services:
       Gmail__Email: ${GMAIL_EMAIL}
       Gmail__Password: ${GMAIL_PASSWORD}
       Gmail__DisplayName: ${GMAIL_DISPLAY_NAME}
+
+      Stripe__SecretKey: ${STRIPE_SECRET_KEY}
+      Stripe__PublishableKey: ${STRIPE_PUBLISHABLE_KEY}
+      Stripe__WebhookSecret: ${STRIPE_WEBHOOK_SECRET}
       
     depends_on:
       postgres:

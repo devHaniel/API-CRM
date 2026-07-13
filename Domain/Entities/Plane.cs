@@ -19,6 +19,8 @@ public partial class Plane
 
     public bool Activo { get; set; }
 
+    public string? StripePriceId { get; set; }
+
     public DateTime FechaCreacion { get; set; }
 
     public virtual ICollection<Tenant> Tenants { get; set; } = new List<Tenant>();

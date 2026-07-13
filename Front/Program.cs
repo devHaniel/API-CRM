@@ -23,6 +23,11 @@ builder.Services.AddOptions<TwilioSettings>()
     .ValidateDataAnnotations()
     .ValidateOnStart();
 
+builder.Services.AddOptions<StripeSettings>()
+    .Bind(builder.Configuration.GetSection("Stripe"))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
 // ============================================
 // Servicios de capas internas
 // ============================================
@@ -65,7 +70,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.ExpireTimeSpan = TimeSpan.FromHours(8);
         options.SlidingExpiration = true;
         options.Cookie.HttpOnly = true;
-        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
         options.Cookie.SameSite = SameSiteMode.Strict;
     });
 

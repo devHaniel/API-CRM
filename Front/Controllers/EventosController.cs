@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Application.DTOs.Evento;
 using Application.Interfaces;
@@ -16,6 +17,13 @@ using Front.Models.Recordatorios;
 
 namespace Front.Controllers
 {
+    public record CrearDesdeCalendarioRequest(
+        Guid ClienteId,
+        DateTime Fecha,
+        string? Descripcion,
+        decimal? Monto
+    );
+
     [Authorize]
     public class EventosController : Controller
     {
@@ -223,6 +231,68 @@ namespace Front.Controllers
             }
 
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Calendario(CancellationToken ct)
+        {
+            var tenantId = _currentTenantService.TenantId;
+            var clientes = await _clienteService.ObtenerTodosAsync(tenantId, pageNumber: 1, pageSize: 500, ct);
+            ViewBag.ClientesJson = JsonSerializer.Serialize(
+                clientes.Items.Select(c => new { id = c.Id.ToString(), nombre = c.Nombre })
+            );
+            return View();
+        }
+
+        [HttpPost]
+        [IgnoreAntiforgeryToken]
+        public async Task<IActionResult> CrearDesdeCalendario([FromBody] CrearDesdeCalendarioRequest request, CancellationToken ct)
+        {
+            var tenantId = _currentTenantService.TenantId;
+
+            try
+            {
+                var dto = new CrearEventoDto(
+                    request.ClienteId,
+                    "Cita",
+                    request.Fecha,
+                    request.Descripcion,
+                    request.Monto,
+                    "Pendiente"
+                );
+
+                var id = await _eventoService.CrearAsync(tenantId, dto, ct);
+                return Ok(new { success = true, id });
+            }
+            catch (Exception ex) when (ex is InvalidOperationException or System.ComponentModel.DataAnnotations.ValidationException)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ObtenerEventosCalendario(DateTime start, DateTime end, CancellationToken ct)
+        {
+            var tenantId = _currentTenantService.TenantId;
+            var eventos = await _eventoService.ObtenerProximosAsync(tenantId, start, end, ct);
+
+            var result = eventos.Select(e => new
+            {
+                id = e.Id.ToString(),
+                title = $"{e.ClienteNombre} - {e.Tipo}",
+                start = e.Fecha.ToString("o"),
+                allDay = true,
+                extendedProps = new
+                {
+                    clienteNombre = e.ClienteNombre,
+                    tipo = e.Tipo,
+                    monto = e.Monto,
+                    descripcion = e.Descripcion,
+                    estado = e.Estado
+                }
+            });
+
+            return Ok(result);
         }
 
         private async Task<List<SelectListItem>> ObtenerClientesSelectListAsync(CancellationToken ct)

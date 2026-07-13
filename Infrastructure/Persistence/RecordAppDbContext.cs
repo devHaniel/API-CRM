@@ -311,6 +311,9 @@ public partial class RecordAppDbContext : DbContext
             entity.Property(e => e.PrecioRecordatorioExtra)
                 .HasPrecision(10, 4)
                 .HasColumnName("precio_recordatorio_extra");
+            entity.Property(e => e.StripePriceId)
+                .HasMaxLength(255)
+                .HasColumnName("stripe_price_id");
         });
 
         modelBuilder.Entity<PlantillasMensaje>(entity =>
@@ -472,6 +475,9 @@ public partial class RecordAppDbContext : DbContext
                 .HasMaxLength(150)
                 .HasColumnName("nombre");
             entity.Property(e => e.PlanId).HasColumnName("plan_id");
+            entity.Property(e => e.StripeCustomerId)
+                .HasMaxLength(255)
+                .HasColumnName("stripe_customer_id");
             entity.Property(e => e.Rubro)
                 .HasMaxLength(80)
                 .HasColumnName("rubro");

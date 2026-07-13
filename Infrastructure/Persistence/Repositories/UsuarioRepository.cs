@@ -30,6 +30,9 @@ namespace Infrastructure.Persistence.Repositories
         public async Task<int> SaveChangesAsync(CancellationToken ct = default)
             => await _context.SaveChangesAsync(ct);
 
+        public async Task<Usuario?> GetAdminByTenantAsync(Guid tenantId, CancellationToken ct = default)
+            => await _context.Usuarios.FirstOrDefaultAsync(u => u.TenantId == tenantId && u.Rol == "Admin", ct);
+
         public async Task<Usuario?> GetByEmailAsync(string email, CancellationToken ct = default)
             => await _context.Usuarios.FirstOrDefaultAsync(u => u.Email == email, ct);
 

@@ -17,6 +17,8 @@ public partial class Tenant
 
     public Guid? PlanId { get; set; }
 
+    public string? StripeCustomerId { get; set; }
+
     public virtual ICollection<Cliente> Clientes { get; set; } = new List<Cliente>();
 
     public virtual ICollection<Evento> Eventos { get; set; } = new List<Evento>();

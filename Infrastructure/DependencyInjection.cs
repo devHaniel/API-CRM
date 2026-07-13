@@ -8,6 +8,7 @@ using Domain.Interfaces;
 using Hangfire;
 using Infrastructure.Configuration;
 using Infrastructure.Mensajeria;
+using Infrastructure.Pagos;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Repositories;
 using Infrastructure.Persistence.Services;
@@ -35,6 +36,7 @@ namespace Infrastructure
         services.AddScoped<IUsuarioRepository, UsuarioRepository>();
         services.AddScoped<ITenantRepository, TenantRepository>();
         services.AddScoped<IWhatsAppService, TwilioMensajeService>();
+        services.AddScoped<IStripeService, StripeService>();
         services.AddScoped<IPlanRepository, PlanRepository>();
 
         services.AddScoped<IPasswordHasher, PasswordHasher>();
